@@ -17,11 +17,33 @@ export default function Proposta() {
   const [selected, setSelected] = useState({})
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
+  const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 
   const cats = ['todos', 'Dispenser', 'Papel', 'Refil', 'Outros']
   const filtered = catFilter === 'todos' ? PRODUCTS : PRODUCTS.filter(p => p.cat === catFilter)
   const items = Object.values(selected)
   const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
+
+  async function buscarCNPJ(cnpj) {
+    const numeros = cnpj.replace(/\D/g, '')
+    if (numeros.length !== 14) return
+    try {
+      setBuscandoCNPJ(true)
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
+      const data = await res.json()
+      if (data.razao_social) {
+        setCliente(c => ({
+          ...c,
+          empresa: data.nome_fantasia || data.razao_social,
+          endereco: `${data.logradouro}, ${data.numero} – ${data.bairro}, ${data.municipio}/${data.uf} – CEP ${data.cep}`
+        }))
+      }
+    } catch(e) {
+      alert('CNPJ não encontrado ou inválido.')
+    } finally {
+      setBuscandoCNPJ(false)
+    }
+  }
 
   function toggleProduct(p) {
     const s = { ...selected }
@@ -93,7 +115,9 @@ export default function Proposta() {
               <div key={k}>
                 <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
                 <input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
+                  onBlur={k === 'cnpj' ? () => buscarCNPJ(cliente.cnpj) : undefined}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
+                {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>🔍 Buscando dados do CNPJ...</div>}
               </div>
             ))}
           </div>
