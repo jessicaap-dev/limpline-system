@@ -14,6 +14,28 @@ export default function Contrato() {
   const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
+  const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
+
+  async function buscarCNPJ(cnpj) {
+    const numeros = cnpj.replace(/\D/g, '')
+    if (numeros.length !== 14) return
+    try {
+      setBuscandoCNPJ(true)
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
+      const data = await res.json()
+      if (data.razao_social) {
+        setDados(d => ({
+          ...d,
+          empresa: data.nome_fantasia || data.razao_social,
+          endereco: `${data.logradouro}, ${data.numero} – ${data.bairro}, ${data.municipio}/${data.uf} – CEP ${data.cep}`
+        }))
+      }
+    } catch(e) {
+      alert('CNPJ não encontrado ou inválido.')
+    } finally {
+      setBuscandoCNPJ(false)
+    }
+  }
 
   function addComodato() {
     setComodato(c => [...c, { id: Date.now(), name: '', qty: 1 }])
@@ -59,7 +81,9 @@ export default function Contrato() {
             <div key={k} style={{ gridColumn: k === 'endereco' || k === 'data' ? '1 / -1' : 'auto' }}>
               <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
               <input value={dados[k]} onChange={e => setDados(d => ({ ...d, [k]: e.target.value }))}
+                onBlur={k === 'cnpj' ? () => buscarCNPJ(dados.cnpj) : undefined}
                 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
+              {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>🔍 Buscando dados do CNPJ...</div>}
             </div>
           ))}
         </div>
