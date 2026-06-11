@@ -132,10 +132,12 @@ y += nl.length > 1 ? nl.length * 4.5 + 2 : 7
 })
 y += 2
 doc.setFillColor(...AZUL)
-doc.rect(M + cw[0] + cw[1] + cw[2] - 2, y - 1, cw[3] + 2, 8, 'F')
-doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-doc.text('Total pedido', M + cw[0] + 2, y + 4.5)
-doc.text(fmtBRL(total), W - M - 2, y + 4.5, { align: 'right' })
+doc.rect(M, y - 1, W - M * 2, 8, 'F')
+doc.setFontSize(9)
+doc.setFont('helvetica', 'bold')
+doc.setTextColor(255, 255, 255)
+doc.text('Total do pedido:', M + 3, y + 4.5)
+doc.text(fmtBRL(total), W - M - 3, y + 4.5, { align: 'right' })
 y += 14
 }
 
