@@ -46,13 +46,20 @@ export const PRODUCTS = [
 ]
 
 export const COMODATO_DEFAULT = [
-  { name: 'Toalheiro interfolhado', qty: 1 },
-  { name: 'Saboneteira espuma', qty: 1 },
-  { name: 'Suporte higiênico cai-cai', qty: 1 },
-  { name: 'Aparelho odorizador', qty: 1 },
-  { name: 'Suporte assento sanitário', qty: 1 },
-  { name: 'Suporte descarte absorvente', qty: 1 },
-  { name: 'Enxaguante bucal', qty: 1 },
+  { name: 'Desodorizador de Ambiente', qty: 1 },
+  { name: 'Dispenser FreeCo', qty: 1 },
+  { name: 'Dispenser para Álcool Gel', qty: 1 },
+  { name: 'Dispenser para Álcool Spray', qty: 1 },
+  { name: 'Kit Enxaguante Bucal (Enxaguante, Fio Dental e Porta Copos)', qty: 1 },
+  { name: 'Porta Copos', qty: 1 },
+  { name: 'Saboneteira Espuma', qty: 1 },
+  { name: 'Saboneteira Galão', qty: 1 },
+  { name: 'Suporte para Descarte Plástico de Absorvente', qty: 1 },
+  { name: 'Suporte para Papel Higiênico Cai-Cai', qty: 1 },
+  { name: 'Suporte para Papel Higiênico Rolão', qty: 1 },
+  { name: 'Suporte para Protetor de Assento Sanitário', qty: 1 },
+  { name: 'Toalheiro Bobina Auto Corte', qty: 1 },
+  { name: 'Toalheiro Interfolha', qty: 1 },
 ]
 
 export function fmtBRL(v) {
