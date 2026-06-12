@@ -10,7 +10,7 @@ export default function Proposta() {
   const [tab, setTab] = useState('cliente')
   const [catFilter, setCatFilter] = useState('todos')
   const [cliente, setCliente] = useState({
-    nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias',
+    nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
     data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato: true
   })
   const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
@@ -135,11 +135,12 @@ export default function Proposta() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {[['validade', 'Validade'], ['data', 'Data']].map(([k, l]) => (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.4fr', gap: 12 }}>
+            {[['validade', 'Validade'], ['data', 'Data'], ['condicaoPagamento', 'Condição de pagamento']].map(([k, l]) => (
               <div key={k}>
                 <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
                 <input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
+                  placeholder={k === 'condicaoPagamento' ? 'Ex.: 28 dias / a combinar' : undefined}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
               </div>
             ))}
