@@ -19,6 +19,20 @@ reader.readAsDataURL(blob)
 })
 }
 
+async function addWatermark(doc, logoData) {
+  if (!logoData) return
+  const pageWidth = 210
+  const pageHeight = 297
+  const imgWidth = 120
+  const imgHeight = 80
+  const x = (pageWidth - imgWidth) / 2
+  const y = (pageHeight - imgHeight) / 2
+  doc.saveGraphicsState()
+  doc.setGState(new doc.GState({ opacity: 0.06 }))
+  doc.addImage(logoData, 'PNG', x, y, imgWidth, imgHeight)
+  doc.restoreGraphicsState()
+}
+
 function header(doc, logoData) {
 doc.setFillColor(26, 58, 107)
 doc.rect(0, 0, W, 26, 'F')
@@ -51,6 +65,7 @@ const logoData = await loadLogo()
 let y = 30
 
 header(doc, logoData)
+addWatermark(doc, logoData)
 
 doc.setFillColor(...AMARELO)
 doc.rect(M, y, W - M * 2, 8, 'F')
@@ -118,7 +133,7 @@ doc.text('Total', M + cw[0] + cw[1] + cw[2] + 2, y + 3.5)
 y += 8
 let total = 0
 data.produtos.forEach((it, i) => {
-if (y > 265) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); y = 30 }
+if (y > 265) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 30 }
 const sub = it.qty * (it.price || 0)
 total += sub
 if (i % 2 === 0) { doc.setFillColor(248, 250, 255); doc.rect(M, y - 1, cw.reduce((a, b) => a + b), 6, 'F') }
@@ -150,7 +165,7 @@ doc.text(obsLines, M, y); y += obsLines.length * 4.5 + 8
 }
 
 if (data.incluirContrato) {
-doc.addPage(); header(doc, logoData)
+doc.addPage(); header(doc, logoData); addWatermark(doc, logoData)
 generateContratoPages(doc, data, logoData)
 }
 
@@ -164,6 +179,7 @@ export async function generateContrato(data) {
 const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 const logoData = await loadLogo()
 header(doc, logoData)
+addWatermark(doc, logoData)
 generateContratoPages(doc, data, logoData)
 footer(doc, 1)
 const fn = `Contrato_Limpline_${(data.empresa || 'cliente').replace(/\s/g, '_')}_${(data.data || '').replace(/\//g, '-')}.pdf`
@@ -229,7 +245,7 @@ texto: 'Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer co
 ]
 
 clausulas.forEach(cl => {
-if (y > 240) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); y = 30 }
+if (y > 240) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 30 }
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
 doc.text(cl.titulo, M, y); y += 6
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
@@ -237,7 +253,7 @@ const tLines = doc.splitTextToSize(cl.texto, W - M * 2)
 doc.text(tLines, M, y); y += tLines.length * 4.5 + 8
 })
 
-if (y > 220) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); y = 30 }
+if (y > 220) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 30 }
 y += 8
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
 doc.text(`São Paulo, ${data.data || '_____ de ________________ de 2026'}.`, M, y); y += 14
