@@ -84,16 +84,30 @@ doc.text(`Vendedora: ${data.vendedora || '—'}`, M, y)
 y += 10
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-const intro = 'No modelo de comodato, fornecemos os suportes gratuitamente, incluindo instalação, manutenção preventiva e corretiva contínua, sem qualquer custo adicional. A única despesa da empresa será com os consumíveis (papéis e refis).'
-const lines = doc.splitTextToSize(intro, W - M * 2)
-doc.text(lines, M, y); y += lines.length * 4.5 + 6
-
-const info = [
-'• Manutenções e substituições realizadas em até 48 horas.',
-'• Orientação completa no momento da instalação sobre reposição e manuseio.',
-'• Possibilidade de personalização dos suportes com o logotipo da empresa, sem custo adicional.',
+const paragrafos = [
+  'Há mais de 20 anos, a Limpline é referência em soluções de higiene corporativa através do sistema de comodato, oferecendo qualidade, pontualidade e economia para empresas de todos os portes.',
+  'Disponibilizamos equipamentos modernos, com possibilidade de personalização com o seu logo sem custo, proporcionando ambientes mais organizados, elegantes e funcionais.',
+  'No sistema de comodato, sua empresa recebe os equipamentos sem custo de aquisição, contando com instalação, orientação de uso e suporte especializado. A parceria é mantida através da fidelidade no fornecimento dos insumos, garantindo qualidade, padronização e o abastecimento contínuo dos produtos.',
 ]
-info.forEach(line => { doc.text(line, M, y); y += 5 })
+paragrafos.forEach(p => {
+  const pl = doc.splitTextToSize(p, W - M * 2)
+  doc.text(pl, M, y); y += pl.length * 4.5 + 3
+})
+y += 2
+doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
+doc.text('Nossos diferenciais:', M, y); y += 5
+doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
+const info = [
+  '• Equipamentos personalizados com o logo da sua empresa;',
+  '• Simulação dos espaços para visualização do projeto antes da instalação;',
+  '• Treinamento da equipe para utilização e abastecimento correto dos equipamentos;',
+  '• Entrega de materiais em até 2 dias úteis, mantendo o abastecimento sempre em dia;',
+  '• Manutenção corretiva em até 5 dias úteis.',
+]
+info.forEach(line => {
+  const il = doc.splitTextToSize(line, W - M * 2)
+  doc.text(il, M, y); y += il.length * 4.5 + 0.5
+})
 y += 6
 
 if (data.comodato && data.comodato.length) {
@@ -102,28 +116,30 @@ doc.rect(M, y, W - M * 2, 7, 'F')
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
 doc.text('Suportes a serem instalados sem custo', M + 3, y + 4.8)
 y += 11
-doc.setFillColor(230, 241, 251); doc.rect(M, y - 1, 130, 6, 'F')
+doc.setFillColor(230, 241, 251); doc.rect(M, y - 1, W - M * 2, 6, 'F')
 doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
 doc.text('Tipo de suporte', M + 2, y + 3.5)
-doc.text('Qtd.', M + 102, y + 3.5)
+doc.text('Qtd.', W - M - 20, y + 3.5)
 y += 8
 data.comodato.forEach((item, i) => {
-if (i % 2 === 0) { doc.setFillColor(248, 250, 255); doc.rect(M, y - 1, 130, 6, 'F') }
-doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-doc.text(item.name || '—', M + 2, y + 3.5)
-doc.text(String(item.qty || 1), M + 102, y + 3.5)
-y += 7
+  if (y > 265) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
+  if (i % 2 === 0) { doc.setFillColor(248, 250, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
+  doc.text(item.name || '—', M + 2, y + 3.5)
+  doc.text(String(item.qty || 1), W - M - 20, y + 3.5)
+  y += 7
 })
 y += 6
 }
 
 if (data.produtos && data.produtos.length) {
+  if (y > 225) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
 doc.setFillColor(...AZUL_M)
 doc.rect(M, y, W - M * 2, 7, 'F')
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
 doc.text('Valores e sugestão do pedido', M + 3, y + 4.8)
 y += 11
-const cw = [82, 22, 28, 28]
+const cw = [96, 22, 28, 28]
 doc.setFillColor(230, 241, 251); doc.rect(M, y - 1, cw.reduce((a, b) => a + b), 6, 'F')
 doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
 doc.text('Produto', M + 2, y + 3.5)
@@ -154,6 +170,15 @@ doc.setTextColor(255, 255, 255)
 doc.text('Total do pedido:', M + 3, y + 4.5)
 doc.text(fmtBRL(total), W - M - 3, y + 4.5, { align: 'right' })
 y += 14
+}
+
+if (data.condicaoPagamento) {
+  if (y > 268) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
+  doc.text('Condição de pagamento: ', M, y)
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
+  doc.text(data.condicaoPagamento, M + 42, y)
+  y += 8
 }
 
 if (data.obs) {
@@ -213,10 +238,13 @@ const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob n
 const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
 doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
 
+const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
+function qtdExtenso(n) { const q = parseInt(n) || 1; return EXTENSO[q] ? `${q} (${EXTENSO[q]})` : String(q) }
+
 const clausulas = [
 {
 titulo: 'CLÁUSULA 1ª — DO OBJETO',
-texto: `O presente contrato tem por objeto a cessão gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilização pelo COMODATÁRIO:\n${(data.comodato || []).map(c => `• ${c.qty} unidade${c.qty > 1 ? 's' : ''} de ${c.name}`).join('\n') || '• (equipamentos a definir)'}\n\nParágrafo único. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, não gerando ao COMODATÁRIO qualquer direito de retenção, posse definitiva ou aquisição.`
+texto: `O presente contrato tem por objeto a cessão gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilização pelo COMODATÁRIO:\n${(data.comodato || []).map(c => `• ${qtdExtenso(c.qty)} unidade${parseInt(c.qty) > 1 ? 's' : ''} de ${c.name}`).join('\n') || '• (equipamentos a definir)'}\n\nParágrafo único. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, não gerando ao COMODATÁRIO qualquer direito de retenção, posse definitiva ou aquisição.`
 },
 {
 titulo: 'CLÁUSULA 2ª — DAS OBRIGAÇÕES DO COMODATÁRIO',
