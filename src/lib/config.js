@@ -17,32 +17,31 @@ export const USERS = [
 ]
 
 export const PRODUCTS = [
-  { id: 1, name: 'Toalheiro interfolhado', cat: 'Dispenser', unit: 'un' },
-  { id: 2, name: 'Saboneteira espuma', cat: 'Dispenser', unit: 'un' },
-  { id: 3, name: 'Saboneteira álcool gel', cat: 'Dispenser', unit: 'un' },
-  { id: 4, name: 'Suporte higiênico cai-cai', cat: 'Dispenser', unit: 'un' },
-  { id: 5, name: 'Suporte higiênico rolão', cat: 'Dispenser', unit: 'un' },
-  { id: 6, name: 'Toalheiro bobina auto corte', cat: 'Dispenser', unit: 'un' },
-  { id: 7, name: 'Suporte descarte absorvente', cat: 'Dispenser', unit: 'un' },
-  { id: 8, name: 'Suporte assento sanitário', cat: 'Dispenser', unit: 'un' },
-  { id: 9, name: 'Enxaguante bucal', cat: 'Dispenser', unit: 'un' },
-  { id: 10, name: 'Aparelho odorizador', cat: 'Dispenser', unit: 'un' },
-  { id: 11, name: 'Porta copos', cat: 'Dispenser', unit: 'un' },
-  { id: 12, name: 'Papel toalha interfolhado c/2400 FD', cat: 'Papel', unit: 'cx' },
-  { id: 13, name: 'Papel higiênico cai-cai c/8000 FD', cat: 'Papel', unit: 'cx' },
-  { id: 14, name: 'Papel higiênico rolão 300m c/8', cat: 'Papel', unit: 'pct' },
-  { id: 15, name: 'Papel toalha bobina 200m c/6', cat: 'Papel', unit: 'pct' },
-  { id: 16, name: 'Papel higiênico interfolhado c/8000', cat: 'Papel', unit: 'cx' },
-  { id: 17, name: 'Refil sabonete espuma 6x500ml', cat: 'Refil', unit: 'cx' },
-  { id: 18, name: 'Refil álcool gel 6x500ml', cat: 'Refil', unit: 'cx' },
-  { id: 19, name: 'Refil saco descarte absorvente c/25', cat: 'Refil', unit: 'cx' },
-  { id: 20, name: 'Refil assento sanitário c/40', cat: 'Refil', unit: 'cx' },
-  { id: 21, name: 'Refil enxaguante bucal 1L', cat: 'Refil', unit: 'un' },
-  { id: 22, name: 'Refil odorizador ambiente', cat: 'Refil', unit: 'un' },
-  { id: 23, name: 'Refil fio dental 200m', cat: 'Refil', unit: 'un' },
-  { id: 24, name: 'Pano multiuso bobina verde', cat: 'Outros', unit: 'pct' },
-  { id: 25, name: 'Pano multiuso bobina azul', cat: 'Outros', unit: 'pct' },
-  { id: 26, name: 'Saco de lixo preto reforçado', cat: 'Outros', unit: 'pct' },
+  // Papel Toalha Bobina
+  { id: 1, name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', unit: 'FD' },
+  { id: 2, name: 'Papel Toalha Bobina 6x20x200 mts Celulose', unit: 'FD' },
+  { id: 3, name: 'Papel Toalha Bobina 6x20x200 mts Premium', unit: 'FD' },
+  // Papel Toalha Interfolha
+  { id: 4, name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', unit: 'CX' },
+  { id: 5, name: 'Papel Toalha Interfolha com 4.800 folhas Premium', unit: 'CX' },
+  { id: 6, name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas', unit: 'CX' },
+  // Papel Higiênico
+  { id: 7, name: 'Papel Higiênico Cai-Cai com 8.000 folhas', unit: 'CX' },
+  { id: 8, name: 'Papel Higiênico Rolão 8x300 mts Luxo', unit: 'FD' },
+  { id: 9, name: 'Papel Higiênico Rolão 8x300 mts Premium', unit: 'FD' },
+  { id: 10, name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts', unit: 'FD' },
+  // Sabonete
+  { id: 11, name: 'Sabonete Espuma Sache', unit: 'CX c/6' },
+  { id: 12, name: 'Sabonete Espuma Galão com 5 lts', unit: 'CX c/4' },
+  { id: 13, name: 'Sabonete Cremoso Galão com 5 lts', unit: 'CX c/4' },
+  // Álcool Gel
+  { id: 14, name: 'Álcool Gel Sache com 800 ml', unit: 'CX c/6' },
+  { id: 15, name: 'Álcool Gel Galão com 5 lts', unit: 'CX c/4' },
+  // Outros
+  { id: 16, name: 'Protetor de Assento Sanitário com 86 folhas', unit: 'CX c/14' },
+  { id: 17, name: 'Saquinho para Absorvente com 25 unidades', unit: 'CX c/24' },
+  { id: 18, name: 'Refil FreeCo', unit: 'UN' },
+  { id: 19, name: 'Odorizador Refil', unit: 'UN' },
 ]
 
 export const COMODATO_DEFAULT = [
