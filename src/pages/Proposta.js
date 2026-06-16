@@ -8,7 +8,6 @@ import Layout from '../components/Layout'
 export default function Proposta() {
   const { user } = useAuth()
   const [tab, setTab] = useState('cliente')
-  const [catFilter, setCatFilter] = useState('todos')
   const [cliente, setCliente] = useState({
     nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
     data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato: true
@@ -19,8 +18,6 @@ export default function Proposta() {
   const [success, setSuccess] = useState('')
   const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 
-  const cats = ['todos', 'Dispenser', 'Papel', 'Refil', 'Outros']
-  const filtered = catFilter === 'todos' ? PRODUCTS : PRODUCTS.filter(p => p.cat === catFilter)
   const items = Object.values(selected)
   const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
@@ -101,9 +98,6 @@ export default function Proposta() {
     setSuccess(`PDF "${fn}" gerado com sucesso!`)
     setTimeout(() => setSuccess(''), 5000)
   }
-
-  const catColor = { Dispenser: '#185FA5', Papel: '#3B6D11', Refil: '#854F0B', Outros: '#5F5E5A' }
-  const catBg = { Dispenser: '#E6F1FB', Papel: '#EAF3DE', Refil: '#FAEEDA', Outros: '#F1EFE8' }
 
   return (
     <Layout title="Gerar Proposta">
@@ -186,16 +180,8 @@ export default function Proposta() {
 
       {tab === 'produtos' && (
         <div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1rem' }}>
-            {cats.map(c => (
-              <button key={c} onClick={() => setCatFilter(c)}
-                style={{ fontSize: 12, padding: '4px 14px', borderRadius: 20, border: '0.5px solid #D0D8EC', background: catFilter === c ? '#1A3A6B' : '#fff', color: catFilter === c ? '#fff' : '#555', cursor: 'pointer' }}>
-                {c === 'todos' ? 'Todos' : c}
-              </button>
-            ))}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: 8, marginBottom: '1rem' }}>
-            {filtered.map(p => {
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 8, marginBottom: '1rem' }}>
+            {PRODUCTS.map(p => {
               const sel = selected[p.id]
               return (
                 <div key={p.id} onClick={() => toggleProduct(p)}
@@ -204,19 +190,19 @@ export default function Proposta() {
                     <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
                     {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
                   </div>
-                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: catBg[p.cat], color: catColor[p.cat] }}>{p.cat}</span>
                   {sel && (
                     <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
                         <input type="number" min="1" value={sel.qty} onChange={e => updateItem(p.id, 'qty', e.target.value)}
                           style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-                        <span style={{ fontSize: 11, color: '#666' }}>{p.unit}</span>
+                        <span style={{ fontSize: 11, color: '#888', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px' }}>{p.unit}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 11, color: '#666' }}>R$</span>
                         <input type="number" min="0" step="0.01" value={sel.price} onChange={e => updateItem(p.id, 'price', e.target.value)}
                           style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+                        <span style={{ fontSize: 11, color: '#666' }}>/ {p.unit}</span>
                       </div>
                     </div>
                   )}
