@@ -16,32 +16,26 @@ export const USERS = [
   { id: 8, name: 'Sarah', email: 'sarah@limplinecomercial.com.br', role: 'vendedora' },
 ]
 
-export const PRODUCTS = [
-  // Papel Toalha Bobina
-  { id: 1, name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', unit: 'FD' },
-  { id: 2, name: 'Papel Toalha Bobina 6x20x200 mts Celulose', unit: 'FD' },
-  { id: 3, name: 'Papel Toalha Bobina 6x20x200 mts Premium', unit: 'FD' },
-  // Papel Toalha Interfolha
-  { id: 4, name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', unit: 'CX' },
-  { id: 5, name: 'Papel Toalha Interfolha com 4.800 folhas Premium', unit: 'CX' },
-  { id: 6, name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas', unit: 'CX' },
-  // Papel Higiênico
-  { id: 7, name: 'Papel Higiênico Cai-Cai com 8.000 folhas', unit: 'CX' },
-  { id: 8, name: 'Papel Higiênico Rolão 8x300 mts Luxo', unit: 'FD' },
-  { id: 9, name: 'Papel Higiênico Rolão 8x300 mts Premium', unit: 'FD' },
-  { id: 10, name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts', unit: 'FD' },
-  // Sabonete
-  { id: 11, name: 'Sabonete Espuma Sache', unit: 'CX c/6' },
-  { id: 12, name: 'Sabonete Espuma Galão com 5 lts', unit: 'CX c/4' },
-  { id: 13, name: 'Sabonete Cremoso Galão com 5 lts', unit: 'CX c/4' },
-  // Álcool Gel
-  { id: 14, name: 'Álcool Gel Sache com 800 ml', unit: 'CX c/6' },
-  { id: 15, name: 'Álcool Gel Galão com 5 lts', unit: 'CX c/4' },
-  // Outros
-  { id: 16, name: 'Protetor de Assento Sanitário com 86 folhas', unit: 'CX c/14' },
-  { id: 17, name: 'Saquinho para Absorvente com 25 unidades', unit: 'CX c/24' },
-  { id: 18, name: 'Refil FreeCo', unit: 'UN' },
-  { id: 19, name: 'Odorizador Refil', unit: 'UN' },
+ export const PRODUTOS = [
+  { name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', units: ['Fardo'] },
+  { name: 'Papel Toalha Bobina 6x20x200 mts Celulose', units: ['Fardo'] },
+  { name: 'Papel Toalha Bobina 6x20x200 mts Premium', units: ['Fardo'] },
+  { name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', units: ['Caixa'] },
+  { name: 'Papel Toalha Interfolha com 4.800 folhas Premium', units: ['Caixa'] },
+  { name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas', units: ['Caixa'] },
+  { name: 'Papel Higiênico Cai-Cai com 8.000 folhas', units: ['Caixa'] },
+  { name: 'Papel Higiênico Rolão 8x300 mts Luxo', units: ['Fardo'] },
+  { name: 'Papel Higiênico Rolão 8x300 mts Premium', units: ['Fardo'] },
+  { name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts', units: ['Fardo'] },
+  { name: 'Sabonete Espuma Sache', units: ['Caixa', 'Unidade'] },
+  { name: 'Sabonete Espuma Galão com 5 lts', units: ['Caixa', 'Unidade'] },
+  { name: 'Sabonete Cremoso Galão com 5 lts', units: ['Caixa', 'Unidade'] },
+  { name: 'Álcool Gel Sache com 800 ml', units: ['Caixa', 'Unidade'] },
+  { name: 'Álcool Gel Galão com 5 lts', units: ['Caixa', 'Unidade'] },
+  { name: 'Protetor de Assento Sanitário com 86 folhas', units: ['Caixa', 'Pacote'] },
+  { name: 'Saquinho para Absorvente com 25 unidades', units: ['Caixa', 'Pacote'] },
+  { name: 'Refil FreeCo', units: ['Unidade'] },
+  { name: 'Odorizador Refil', units: ['Unidade'] },
 ]
 
 export const COMODATO_DEFAULT = [
