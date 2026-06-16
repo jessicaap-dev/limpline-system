@@ -59,7 +59,7 @@ export default function Proposta() {
   function toggleProduct(p) {
     const s = { ...selected }
     if (s[p.id]) delete s[p.id]
-    else s[p.id] = { ...p, qty: 1, price: 0 }
+    else s[p.id] = { ...p, qty: 1, price: 0, unit: p.units[0] }
     setSelected(s)
   }
 
@@ -196,13 +196,20 @@ export default function Proposta() {
                         <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
                         <input type="number" min="1" value={sel.qty} onChange={e => updateItem(p.id, 'qty', e.target.value)}
                           style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-                        <span style={{ fontSize: 11, color: '#888', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px' }}>{p.unit}</span>
+                        {p.units.length > 1 ? (
+                          <select value={sel.unit} onChange={e => setSelected(s => ({ ...s, [p.id]: { ...s[p.id], unit: e.target.value } }))}
+                            style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px', border: 'none' }}>
+                            {p.units.map(u => <option key={u} value={u}>{u}</option>)}
+                          </select>
+                        ) : (
+                          <span style={{ fontSize: 11, color: '#888', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px' }}>{sel.unit}</span>
+                        )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 11, color: '#666' }}>R$</span>
                         <input type="number" min="0" step="0.01" value={sel.price} onChange={e => updateItem(p.id, 'price', e.target.value)}
                           style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-                        <span style={{ fontSize: 11, color: '#666' }}>/ {p.unit}</span>
+                        <span style={{ fontSize: 11, color: '#666' }}>/ {sel.unit}</span>
                       </div>
                     </div>
                   )}
