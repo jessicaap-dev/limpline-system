@@ -38,7 +38,7 @@ export default function Proposta() {
     try {
       setBuscandoCNPJ(true)
       const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
-      if (!res.ok) throw new Error('CNPJ nÃ£o encontrado')
+      if (!res.ok) throw new Error('CNPJ não encontrado')
       const data = await res.json()
       if (data.razao_social) {
         setCliente(c => ({
@@ -50,7 +50,7 @@ export default function Proposta() {
     } catch (e) {
       try {
         const res2 = await fetch(`https://receitaws.com.br/v1/cnpj/${numeros}`)
-        if (!res2.ok) throw new Error('CNPJ nÃ£o encontrado')
+        if (!res2.ok) throw new Error('CNPJ não encontrado')
         const data2 = await res2.json()
         if (data2.nome) {
           setCliente(c => ({
@@ -60,7 +60,7 @@ export default function Proposta() {
           }))
         }
       } catch (e2) {
-        alert('CNPJ nÃ£o encontrado. Verifique o nÃºmero e tente novamente.')
+        alert('CNPJ não encontrado. Verifique o número e tente novamente.')
       }
     } finally {
       setBuscandoCNPJ(false)
@@ -130,7 +130,7 @@ export default function Proposta() {
       {tab === 'cliente' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {[['nome', 'Nome do responsÃ¡vel'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'EndereÃ§o completo']].map(([k, l]) => (
+            {[['nome', 'Nome do responsável'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'Endereço completo']].map(([k, l]) => (
               <div key={k}>
                 <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
                 <input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
@@ -141,7 +141,7 @@ export default function Proposta() {
             ))}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.4fr', gap: 12 }}>
-            {[['validade', 'Validade'], ['data', 'Data'], ['condicaoPagamento', 'CondiÃ§Ã£o de pagamento']].map(([k, l]) => (
+            {[['validade', 'Validade'], ['data', 'Data'], ['condicaoPagamento', 'Condição de pagamento']].map(([k, l]) => (
               <div key={k}>
                 <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
                 <input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
@@ -151,7 +151,7 @@ export default function Proposta() {
             ))}
           </div>
           <div>
-            <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>ObservaÃ§Ãµes</label>
+            <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>Observações</label>
             <textarea value={cliente.obs} onChange={e => setCliente(c => ({ ...c, obs: e.target.value }))} rows={3}
               style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
@@ -160,7 +160,7 @@ export default function Proposta() {
             Incluir minuta do contrato no PDF
           </label>
           <button onClick={() => setTab('comodato')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start' }}>
-            PrÃ³ximo â
+            Próximo →
           </button>
         </div>
       )}
@@ -175,7 +175,7 @@ export default function Proposta() {
                   style={{ flex: 1, padding: '6px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13 }} />
                 <input type="number" value={item.qty} min="1" onChange={e => updateComodato(item.id, 'qty', e.target.value)}
                   style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, textAlign: 'center' }} />
-                <button onClick={() => removeComodato(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A32D2D', fontSize: 18, lineHeight: 1 }}>Ã</button>
+                <button onClick={() => removeComodato(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A32D2D', fontSize: 18, lineHeight: 1 }}>×</button>
               </div>
             ))}
           </div>
@@ -184,7 +184,7 @@ export default function Proposta() {
           </button>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setTab('cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>â Voltar</button>
-            <button onClick={() => setTab('produtos')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>PrÃ³ximo â</button>
+            <button onClick={() => setTab('produtos')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Próximo →</button>
           </div>
         </div>
       )}
@@ -259,7 +259,7 @@ export default function Proposta() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setTab('comodato')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>â Voltar</button>
-            <button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo â</button>
+            <button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
           </div>
         </div>
       )}
