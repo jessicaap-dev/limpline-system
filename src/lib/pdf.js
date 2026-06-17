@@ -1,6 +1,15 @@
 import { jsPDF } from 'jspdf'
 import { fmtBRL } from './config'
 
+function limparTexto(s) {
+  if (!s) return s
+  return s
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\u2026/g, '...')
+}
+
 const AZUL = [26, 58, 107]
 const AZUL_M = [46, 95, 171]
 const AMARELO = [245, 196, 0]
@@ -234,7 +243,7 @@ doc.text(lComodante, M, y); y += lComodante.length * 4.5 + 5
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRETO)
 doc.text(`COMODATÁRIO: ${data.empresa || '___________________________'}`, M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${data.endereco || '___________________________'}.`
+const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
 const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
 doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
 
