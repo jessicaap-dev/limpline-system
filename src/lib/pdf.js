@@ -90,7 +90,7 @@ doc.text(`Att. ${data.nome || '—'}${data.cnpj ? ' | CNPJ: ' + data.cnpj : ''}`
 doc.text(`Validade: ${data.validade || '15 dias'}`, W - M, y, { align: 'right' })
 y += 5
 doc.text(`Vendedora: ${data.vendedora || '—'}`, M, y)
-y += 10
+y += 8
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
 const paragrafos = [
@@ -100,7 +100,7 @@ const paragrafos = [
 ]
 paragrafos.forEach(p => {
   const pl = doc.splitTextToSize(p, W - M * 2)
-  doc.text(pl, M, y); y += pl.length * 4.5 + 3
+  doc.text(pl, M, y, { maxWidth: W - M * 2 }); y += pl.length * 4.5 + 3
 })
 y += 2
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
@@ -171,14 +171,16 @@ doc.text(fmtBRL(sub), M + cw[0] + cw[1] + cw[2] + 2, y + 3.5)
 y += nl.length > 1 ? nl.length * 4.5 + 2 : 7
 })
 y += 2
-doc.setFillColor(...AZUL)
-doc.rect(M, y - 1, W - M * 2, 8, 'F')
-doc.setFontSize(9)
-doc.setFont('helvetica', 'bold')
-doc.setTextColor(255, 255, 255)
-doc.text('Total do pedido:', M + 3, y + 4.5)
-doc.text(fmtBRL(total), W - M - 3, y + 4.5, { align: 'right' })
-y += 14
+if (data.showTotal !== false) {
+  doc.setFillColor(...AZUL)
+  doc.rect(M, y - 1, W - M * 2, 8, 'F')
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(255, 255, 255)
+  doc.text('Total do pedido:', M + 3, y + 4.5)
+  doc.text(fmtBRL(total), W - M - 3, y + 4.5, { align: 'right' })
+  y += 14
+}
 }
 
 if (data.condicaoPagamento) {
@@ -195,7 +197,11 @@ doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M
 doc.text('Observações:', M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
 const obsLines = doc.splitTextToSize(data.obs, W - M * 2)
-doc.text(obsLines, M, y); y += obsLines.length * 4.5 + 8
+for (let oi = 0; oi < obsLines.length; oi++) {
+  if (y > 268) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
+  doc.text(obsLines[oi], M, y); y += 4.5
+}
+y += 8
 }
 
 if (data.incluirContrato) {
@@ -247,7 +253,7 @@ const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob n
 const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
 doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
 
-const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte']
+const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte', 'vinte e uma', 'vinte e duas', 'vinte e três', 'vinte e quatro', 'vinte e cinco', 'vinte e seis', 'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e uma', 'trinta e duas', 'trinta e três', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete', 'trinta e oito', 'trinta e nove', 'quarenta']
 function qtdExtenso(n) { const q = parseInt(n) || 1; return EXTENSO[q] ? `${q} (${EXTENSO[q]})` : String(q) }
 
 const clausulas = [
