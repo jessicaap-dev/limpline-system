@@ -10,6 +10,33 @@ function limparTexto(s) {
     .replace(/\u2026/g, '...')
 }
 
+
+function textJustified(doc, text, x, lineWidth, y, lineHeight) {
+  const lines = doc.splitTextToSize(text, lineWidth)
+  lines.forEach((line, idx) => {
+    const isLast = idx === lines.length - 1
+    if (isLast || line.trim() === '') {
+      doc.text(line, x, y)
+    } else {
+      const words = line.trim().split(' ')
+      if (words.length <= 1) {
+        doc.text(line, x, y)
+      } else {
+        const totalWordWidth = words.reduce((sum, w) => sum + doc.getTextWidth(w), 0)
+        const totalSpace = lineWidth - totalWordWidth
+        const spaceWidth = totalSpace / (words.length - 1)
+        let curX = x
+        words.forEach((word, wi) => {
+          doc.text(word, curX, y)
+          curX += doc.getTextWidth(word) + spaceWidth
+        })
+      }
+    }
+    y += lineHeight
+  })
+  return y
+}
+
 const AZUL = [26, 58, 107]
 const AZUL_M = [46, 95, 171]
 const AMARELO = [245, 196, 0]
@@ -99,8 +126,7 @@ const paragrafos = [
   'No sistema de comodato, sua empresa recebe os equipamentos sem custo de aquisição, contando com instalação, orientação de uso e suporte especializado. A parceria é mantida através da fidelidade no fornecimento dos insumos, garantindo qualidade, padronização e o abastecimento contínuo dos produtos.',
 ]
 paragrafos.forEach(p => {
-  const pl = doc.splitTextToSize(p, W - M * 2)
-  doc.text(pl, M, y, { maxWidth: W - M * 2 }); y += pl.length * 4.5 + 3
+  y = textJustified(doc, p, M, W - M * 2, y, 4.5); y += 3
 })
 y += 2
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
