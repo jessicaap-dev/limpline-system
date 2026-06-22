@@ -26,6 +26,7 @@ export default function Proposta() {
     setCustomProducts(c => c.filter(x => x.id !== id))
   }
   const [loading, setLoading] = useState(false)
+  const [showTotal, setShowTotal] = useState(true)
   const [success, setSuccess] = useState('')
   const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 
@@ -44,7 +45,7 @@ export default function Proposta() {
         setCliente(c => ({
           ...c,
           empresa: data.nome_fantasia || data.razao_social,
-          endereco: `${data.logradouro || ''}, ${data.numero || 'S/N'} â ${data.bairro || ''}, ${data.municipio || ''}/${data.uf || ''} â CEP ${data.cep || ''}`
+          endereco: `${data.logradouro || ''}, ${data.numero || 'S/N'} – ${data.bairro || ''}, ${data.municipio || ''}/${data.uf || ''} – CEP ${data.cep || ''}`
         }))
       }
     } catch (e) {
@@ -56,7 +57,7 @@ export default function Proposta() {
           setCliente(c => ({
             ...c,
             empresa: data2.fantasia || data2.nome,
-            endereco: `${data2.logradouro || ''}, ${data2.numero || 'S/N'} â ${data2.bairro || ''}, ${data2.municipio || ''}/${data2.uf || ''} â CEP ${data2.cep || ''}`
+            endereco: `${data2.logradouro || ''}, ${data2.numero || 'S/N'} – ${data2.bairro || ''}, ${data2.municipio || ''}/${data2.uf || ''} – CEP ${data2.cep || ''}`
           }))
         }
       } catch (e2) {
@@ -114,7 +115,7 @@ export default function Proposta() {
     <Layout title="Gerar Proposta">
       {success && (
         <div style={{ background: '#EAF3DE', color: '#3B6D11', borderRadius: 8, padding: '10px 16px', fontSize: 13, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-          â {success}
+          ✅ {success}
         </div>
       )}
 
@@ -136,7 +137,7 @@ export default function Proposta() {
                 <input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
                   onBlur={k === 'cnpj' ? () => buscarCNPJ(cliente.cnpj) : undefined}
                   style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
-                {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>ð Buscando dados do CNPJ...</div>}
+                {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>🔍 Buscando dados do CNPJ...</div>}
               </div>
             ))}
           </div>
@@ -152,12 +153,16 @@ export default function Proposta() {
           </div>
           <div>
             <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>Observações</label>
-            <textarea value={cliente.obs} onChange={e => setCliente(c => ({ ...c, obs: e.target.value }))} rows={3}
+            <textarea value={cliente.obs} onChange={e => setCliente(c => ({ ...c, obs: e.target.value }))}
               style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
           </div>
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
             <input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
             Incluir minuta do contrato no PDF
+          </label>
+          <label style={{ fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+            <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />
+            Exibir valor total no PDF
           </label>
           <button onClick={() => setTab('comodato')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start' }}>
             Próximo →
@@ -183,7 +188,7 @@ export default function Proposta() {
             + Adicionar suporte
           </button>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setTab('cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>â Voltar</button>
+            <button onClick={() => setTab('cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
             <button onClick={() => setTab('produtos')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Próximo →</button>
           </div>
         </div>
@@ -199,7 +204,7 @@ export default function Proposta() {
                   style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
-                    {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>â</span>}
+                    {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
                   </div>
                   {sel && (
                     <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -258,7 +263,7 @@ export default function Proposta() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setTab('comodato')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>â Voltar</button>
+            <button onClick={() => setTab('comodato')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
             <button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
           </div>
         </div>
@@ -268,9 +273,10 @@ export default function Proposta() {
         <div>
           <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem' }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B', marginBottom: 8 }}>Cliente</div>
-            <div style={{ fontSize: 13, color: '#333' }}>{cliente.empresa || 'â'} {cliente.nome ? `| ${cliente.nome}` : ''}</div>
+            <div style={{ fontSize: 13, color: '#333' }}>{cliente.empresa || '—'} {cliente.nome ? `| ${cliente.nome}` : ''}</div>
             {cliente.cnpj && <div style={{ fontSize: 12, color: '#666' }}>CNPJ: {cliente.cnpj}</div>}
-            <div style={{ fontSize: 12, color: '#666' }}>Validade: {cliente.validade} | Data: {cliente.data} | Vendedora: {user.name}</div>
+            <div style={{ fontSize: 12, color: '#666' }}>Validade: {cliente.validade} | Data: {cliente.data}</div>
+              <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Vendedora: {user.name}</div>
           </div>
 
           {items.length > 0 && (
@@ -307,12 +313,16 @@ export default function Proposta() {
             <input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
             Incluir minuta do contrato no PDF
           </label>
+          <label style={{ fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+            <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />
+            Exibir valor total no PDF
+          </label>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => setTab('produtos')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>â Voltar</button>
+            <button onClick={() => setTab('produtos')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
             <button onClick={handleGerar} disabled={loading}
               style={{ padding: '12px 28px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
-              {loading ? 'Gerando...' : 'ð Gerar PDF'}
+              {loading ? 'Gerando...' : '📄 Gerar PDF'}
             </button>
           </div>
         </div>
