@@ -94,8 +94,8 @@ export default function Proposta() {
   async function handleGerar() {
     if (!cliente.empresa) { alert('Preencha o nome da empresa.'); return }
     setLoading(true)
-    const data = { ...cliente, comodato, produtos: items, vendedora: user.name }
-    const fn = generateProposta(data)
+    const data = { ...cliente, comodato, produtos: items, vendedora: user.name, showTotal }
+    const fn = await generateProposta(data)
     try {
       await supabase.from('historico').insert({
         tipo: cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
