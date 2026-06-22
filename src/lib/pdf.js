@@ -249,7 +249,7 @@ doc.text(lComodante, M, y); y += lComodante.length * 4.5 + 5
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRETO)
 doc.text(`COMODATÁRIO: ${data.empresa || '___________________________'}`, M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
+const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
 const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
 doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
 
