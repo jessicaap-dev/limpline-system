@@ -10,6 +10,12 @@ function limparTexto(s) {
     .replace(/\u2026/g, '...')
 }
 
+function pluralUnit(unit, qty) {
+  if (!unit || qty <= 1) return unit
+  const map = { 'Unidade': 'Unidades', 'Caixa': 'Caixas', 'Fardo': 'Fardos', 'Pacote': 'Pacotes' }
+  return map[unit] || unit
+}
+
 
 function textJustified(doc, text, x, lineWidth, y, lineHeight) {
   const lines = doc.splitTextToSize(text, lineWidth)
@@ -191,7 +197,7 @@ if (i % 2 === 0) { doc.setFillColor(248, 250, 255); doc.rect(M, y - 1, cw.reduce
 doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
 const nl = doc.splitTextToSize(it.name, cw[0] - 4)
 doc.text(nl, M + 2, y + 3.5)
-doc.text(`${it.qty} ${it.unit}`, M + cw[0] + 2, y + 3.5)
+doc.text(`${it.qty} ${pluralUnit(it.unit, it.qty)}`, M + cw[0] + 2, y + 3.5)
 doc.text(fmtBRL(it.price), M + cw[0] + cw[1] + 2, y + 3.5)
 doc.text(fmtBRL(sub), M + cw[0] + cw[1] + cw[2] + 2, y + 3.5)
 y += nl.length > 1 ? nl.length * 4.5 + 2 : 7
