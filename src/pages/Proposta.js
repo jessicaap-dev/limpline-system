@@ -94,21 +94,29 @@ export default function Proposta() {
   async function handleGerar() {
     if (!cliente.empresa) { alert('Preencha o nome da empresa.'); return }
     setLoading(true)
-    const data = { ...cliente, comodato, produtos: items, vendedora: user.name, showTotal }
-    const fn = await generateProposta(data)
     try {
-      await supabase.from('historico').insert({
-        tipo: cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
-        vendedora: user.name,
-        cliente_nome: cliente.nome,
-        cliente_empresa: cliente.empresa,
-        arquivo: fn,
-        created_at: new Date().toISOString()
-      })
-    } catch (e) { }
-    setLoading(false)
-    setSuccess(`PDF "${fn}" gerado com sucesso!`)
-    setTimeout(() => setSuccess(''), 5000)
+      const data = { ...cliente, comodato, produtos: items, vendedora: user.name, showTotal }
+      const fn = await generateProposta(data)
+      try {
+        await supabase.from('historico').insert({
+          tipo: cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
+          vendedora: user.name,
+          cliente_nome: cliente.nome,
+          cliente_empresa: cliente.empresa,
+          arquivo: fn,
+          created_at: new Date().toISOString()
+        })
+      } catch (e) {
+        console.error('Erro ao salvar histórico:', e)
+      }
+      setSuccess(`PDF "${fn}" gerado com sucesso!`)
+      setTimeout(() => setSuccess(''), 5000)
+    } catch (e) {
+      console.error('Erro ao gerar PDF:', e)
+      alert('Erro ao gerar o PDF. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
