@@ -98,14 +98,14 @@ export default function Proposta() {
       const data = { ...cliente, comodato, produtos: items, vendedora: user.name, showTotal }
       const fn = await generateProposta(data)
       try {
-        await supabase.from('historico').insert({
+        const { error: insertError } = await supabase.from('historico').insert({
           tipo: cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
           vendedora: user.name,
-          cliente_nome: cliente.nome,
-          cliente_empresa: cliente.empresa,
-          arquivo: fn,
+          email: user.email,
+          cliente_nome: cliente.nome || cliente.empresa,
           created_at: new Date().toISOString()
         })
+        if (insertError) console.error('Erro histórico:', insertError)
       } catch (e) {
         console.error('Erro ao salvar histórico:', e)
       }
