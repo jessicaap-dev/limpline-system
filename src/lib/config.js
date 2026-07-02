@@ -45,6 +45,20 @@ export const PRODUCTS = [
 // REFIS
 { id: 21, name: 'Refil FreeCo', units: ['Unidade'], categoria: 'Refis' },
 { id: 22, name: 'Odorizador Refil', units: ['Unidade'], categoria: 'Refis' },
+// EQUIPAMENTOS (para venda)
+{ id: 23, name: 'Toalheiro Bobina Auto Corte', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 24, name: 'Saboneteira Espuma', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 25, name: 'Saboneteira Reservatório', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 26, name: 'Suporte Papel Higiênico Rolão', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 27, name: 'Toalheiro Interfolha', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 28, name: 'Suporte Papel Higiênico Cai-Cai', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 29, name: 'Dispenser Álcool Spray', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 30, name: 'Dispenser Álcool Gel', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 31, name: 'Suporte Protetor de Assento Sanitário', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 32, name: 'Suporte Descarte de Absorvente', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 33, name: 'Dispenser FreeCo', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 34, name: 'Kit Enxaguante Bucal (Enxaguante, Fio Dental e Porta Copos)', units: ['Unidade'], categoria: 'Equipamentos' },
+{ id: 35, name: 'Desodorizador de Ambiente', units: ['Unidade'], categoria: 'Equipamentos' },
 ]
 
 export const COMODATO_DEFAULT = [
