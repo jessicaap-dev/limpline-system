@@ -151,9 +151,10 @@ info.forEach(line => {
 y += 4
 const labelVend = data.genero === 'm' ? 'Vendedor' : 'Vendedora'
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
-doc.text(`${labelVend}:`, M, y)
+const labelComEspaco = `${labelVend}: `
+doc.text(labelComEspaco, M, y)
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-doc.text(' ' + (data.vendedora || '—'), M + doc.getTextWidth(`${labelVend}:`), y)
+doc.text(data.vendedora || '—', M + doc.getTextWidth(labelComEspaco), y)
 y += 8
 
 if (data.comodato && data.comodato.length) {
