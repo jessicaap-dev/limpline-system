@@ -125,7 +125,11 @@ y += 5
 y += 3
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-const paragrafos = [
+const paragrafos = data.tipoProposta === 'equipamentos' ? [
+  'A Limpline oferece equipamentos modernos de higiene corporativa, desenvolvidos para garantir praticidade, durabilidade e eficiência no dia a dia das empresas.',
+  'Nossa linha de produtos atende diferentes necessidades de ambientes corporativos, contribuindo para espaços mais organizados, higiênicos e funcionais.',
+  'A Limpline é referência em soluções práticas para higiene corporativa, oferecendo qualidade e confiança em cada produto.',
+] : [
   'Há mais de 20 anos, a Limpline é referência em soluções de higiene corporativa através do sistema de comodato, oferecendo qualidade, pontualidade e economia para empresas de todos os portes.',
   'Disponibilizamos equipamentos modernos, com possibilidade de personalização com o seu logo sem custo, proporcionando ambientes mais organizados, elegantes e funcionais.',
   'No sistema de comodato, sua empresa recebe os equipamentos sem custo de aquisição, contando com instalação, orientação de uso e suporte especializado. A parceria é mantida através da fidelidade no fornecimento dos insumos, garantindo qualidade, padronização e o abastecimento contínuo dos produtos.',
@@ -137,7 +141,12 @@ y += 2
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
 doc.text('Nossos diferenciais:', M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-const info = [
+const info = data.tipoProposta === 'equipamentos' ? [
+  '• Equipamentos modernos e de alta qualidade;',
+  '• Produtos resistentes e de excelente durabilidade;',
+  '• Linha completa para higiene corporativa;',
+  '• Entrega ágil e atendimento especializado.',
+] : [
   '• Equipamentos personalizados com o logo da sua empresa;',
   '• Simulação dos espaços para visualização do projeto antes da instalação;',
   '• Treinamento da equipe para utilização e abastecimento correto dos equipamentos;',
@@ -145,16 +154,18 @@ const info = [
   '• Manutenção corretiva em até 5 dias úteis.',
 ]
 info.forEach(line => {
-  const il = doc.splitTextToSize(line, W - M * 2)
-  doc.text(il, M, y); y += il.length * 4.5 + 0.5
+  y = textJustified(doc, line, M, W - M * 2, y, 4.5)
+  y += 0.5
 })
 y += 4
 const labelVend = data.genero === 'm' ? 'Vendedor' : 'Vendedora'
-doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
+doc.setFontSize(9);
 const labelComEspaco = `${labelVend}: `
+doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
 doc.text(labelComEspaco, M, y)
+const xAposLabel = M + doc.getTextWidth(labelComEspaco)
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-doc.text(data.vendedora || '—', M + doc.getTextWidth(labelComEspaco), y)
+doc.text((data.vendedora || '—'), xAposLabel, y)
 y += 8
 
 if (data.comodato && data.comodato.length) {
@@ -293,34 +304,38 @@ const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 
 function qtdExtenso(n) { const q = parseInt(n) || 1; return EXTENSO[q] ? `${q} (${EXTENSO[q]})` : String(q) }
 
 const clausulas = [
-{
-titulo: 'CLÁUSULA 1ª — DO OBJETO',
-texto: `O presente contrato tem por objeto a cessão gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilização pelo COMODATÁRIO:\n${(data.comodato || []).map(c => `• ${qtdExtenso(c.qty)} unidade${parseInt(c.qty) > 1 ? 's' : ''} de ${c.name}`).join('\n') || '• (equipamentos a definir)'}\n\nParágrafo único. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, não gerando ao COMODATÁRIO qualquer direito de retenção, posse definitiva ou aquisição.`
-},
-{
-titulo: 'CLÁUSULA 2ª — DAS OBRIGAÇÕES DO COMODATÁRIO',
-texto: 'O COMODATÁRIO declara receber os equipamentos em perfeito estado de conservação e funcionamento, comprometendo-se a:\nI — Zelar pela guarda, conservação e correta utilização dos equipamentos;\nII — Utilizar exclusivamente produtos e suprimentos fornecidos pelo COMODANTE;\nIII — Comunicar imediatamente ao COMODANTE qualquer defeito, dano ou irregularidade;\nIV — Restituir os equipamentos ao término deste contrato nas mesmas condições em que os recebeu.\n\n§1º O COMODATÁRIO será integralmente responsável pelos danos decorrentes de mau uso, vandalismo ou negligência.\n§2º Não haverá exigência de consumo mínimo mensal, permanecendo a obrigação de exclusividade de aquisição junto ao COMODANTE.'
-},
-{
-titulo: 'CLÁUSULA 3ª — DAS OBRIGAÇÕES DO COMODANTE',
-texto: 'O COMODANTE obriga-se a:\nI — Realizar a instalação dos equipamentos;\nII — Prestar manutenção corretiva sem custos ao COMODATÁRIO;\nIII — Realizar os reparos necessários no prazo máximo de até 5 (cinco) dias úteis após comunicação formal.\n\nParágrafo único. Não estarão cobertos pela manutenção gratuita os danos decorrentes de vandalismo, mau uso ou utilização inadequada dos equipamentos.'
-},
-{
-titulo: 'CLÁUSULA 4ª — DO PRAZO',
-texto: 'O presente contrato vigorará pelo prazo determinado de 12 (doze) meses, contados da data de sua assinatura.\n\n§1º Findo o prazo inicial, o contrato será automaticamente renovado por prazo indeterminado, salvo manifestação expressa e escrita em contrário.\n§2º Permanecendo os equipamentos em posse do COMODATÁRIO após o término do prazo, sem oposição do COMODANTE, considerar-se-á automaticamente prorrogado o presente instrumento.'
-},
-{
-titulo: 'CLÁUSULA 5ª — DA RESCISÃO',
-texto: 'O presente contrato poderá ser rescindido por qualquer das partes, sem incidência de multa ou ônus, mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\n§1º O inadimplemento financeiro superior a 30 (trinta) dias autorizará o COMODANTE a rescindir imediatamente o contrato e promover a retirada dos equipamentos.'
-},
-{
-titulo: 'CLÁUSULA 6ª — DA DEVOLUÇÃO DOS EQUIPAMENTOS',
-texto: 'Encerrado o contrato por qualquer motivo, o COMODATÁRIO deverá disponibilizar os equipamentos para retirada pelo COMODANTE no prazo máximo de 20 (vinte) dias corridos, contados da notificação de encerramento.'
-},
-{
-titulo: 'CLÁUSULA 7ª — DO FORO',
-texto: 'Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.'
-},
+  {
+    titulo: 'CLÁUSULA 1ª — DO OBJETO',
+    texto: `O presente contrato tem por objeto a cessão gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilização pelo COMODATÁRIO:\n${(data.comodato || []).map(c => `• ${qtdExtenso(c.qty)} unidade${parseInt(c.qty) > 1 ? 's' : ''} de ${c.name}`).join('\n') || '• (equipamentos a definir)'}\n\nParágrafo único. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, não gerando ao COMODATÁRIO qualquer direito de retenção, posse definitiva ou aquisição.`
+  },
+  {
+    titulo: 'CLÁUSULA 2ª — DAS OBRIGAÇÕES DO COMODATÁRIO',
+    texto: 'O COMODATÁRIO declara receber os equipamentos em perfeito estado de conservação e funcionamento, comprometendo-se a:\nI — Zelar pela guarda, conservação e correta utilização dos equipamentos;\nII — Utilizar exclusivamente produtos e suprimentos fornecidos pelo COMODANTE;\nIII — Comunicar imediatamente ao COMODANTE qualquer defeito, dano ou irregularidade nos equipamentos;\nIV — Restituir os equipamentos ao término deste contrato nas mesmas condições em que os recebeu, ressalvado o desgaste natural decorrente do uso regular.\n\n§1º O COMODATÁRIO será integralmente responsável pelos danos decorrentes de mau uso, vandalismo, negligência, extravio ou destruição dos equipamentos.\n§2º Não haverá exigência de consumo mínimo mensal de suprimentos, permanecendo, contudo, a obrigação de exclusividade de aquisição junto ao COMODANTE enquanto perdurar o comodato.'
+  },
+  {
+    titulo: 'CLÁUSULA 3ª — DAS OBRIGAÇÕES DO COMODANTE',
+    texto: 'O COMODANTE obriga-se a:\nI — Realizar a instalação dos equipamentos;\nII — Prestar manutenção corretiva sem custos ao COMODATÁRIO;\nIII — Realizar os reparos necessários no prazo máximo de até 5 (cinco) dias úteis após a comunicação formal do COMODATÁRIO.\n\nParágrafo único. Não estarão cobertos pela manutenção gratuita os danos decorrentes de vandalismo, mau uso, destruição proposital ou utilização inadequada dos equipamentos, hipótese em que os custos serão suportados pelo COMODATÁRIO.'
+  },
+  {
+    titulo: 'CLÁUSULA 4ª — DO PRAZO',
+    texto: 'O presente contrato vigorará pelo prazo determinado de 12 (doze) meses, contados da data de sua assinatura.\n\n§1º Findo o prazo inicial, o contrato será automaticamente renovado por prazo indeterminado, salvo manifestação expressa e escrita em contrário por qualquer das partes.\n§2º Permanecendo os equipamentos em posse do COMODATÁRIO após o término do prazo contratual, sem oposição do COMODANTE, considerar-se-á automaticamente prorrogado o presente instrumento.'
+  },
+  {
+    titulo: 'CLÁUSULA 5ª — DA RESCISÃO',
+    texto: 'O presente contrato poderá ser rescindido por qualquer das partes, sem incidência de multa ou ônus, mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\n§1º O inadimplemento financeiro superior a 30 (trinta) dias autorizará o COMODANTE a rescindir imediatamente o contrato e promover a retirada dos equipamentos.'
+  },
+  {
+    titulo: 'CLÁUSULA 6ª — DA DEVOLUÇÃO DOS EQUIPAMENTOS',
+    texto: 'Encerrado o contrato por qualquer motivo, o COMODATÁRIO deverá disponibilizar os equipamentos para retirada pelo COMODANTE no prazo máximo de 20 (vinte) dias corridos, contados da notificação de encerramento.\n\nParágrafo único. A não devolução dos equipamentos poderá ensejar a adoção das medidas judiciais cabíveis, inclusive cobrança das perdas e danos correspondentes.'
+  },
+  {
+    titulo: 'CLÁUSULA 7ª — DO DESCUMPRIMENTO CONTRATUAL',
+    texto: 'O descumprimento de quaisquer das obrigações previstas neste instrumento constituirá infração contratual, facultando à parte prejudicada considerar rescindido o contrato, sem prejuízo das perdas e danos eventualmente apurados.'
+  },
+  {
+    titulo: 'CLÁUSULA 8ª — DO FORO',
+    texto: 'Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.\n\nE, por estarem assim justas e contratadas, firmam o presente instrumento em 02 (duas) vias de igual teor e forma, juntamente com 02 (duas) testemunhas.'
+  },
 ]
 
 clausulas.forEach(cl => {
