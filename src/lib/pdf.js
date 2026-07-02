@@ -151,9 +151,9 @@ info.forEach(line => {
 y += 4
 const labelVend = data.genero === 'm' ? 'Vendedor' : 'Vendedora'
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
-doc.text(`${labelVend}: `, M, y)
+doc.text(`${labelVend}:`, M, y)
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-doc.text(data.vendedora || '—', M + doc.getTextWidth(`${labelVend}: `), y)
+doc.text(' ' + (data.vendedora || '—'), M + doc.getTextWidth(`${labelVend}:`), y)
 y += 8
 
 if (data.comodato && data.comodato.length) {
@@ -285,9 +285,8 @@ y = textJustified(doc, comodante, M, W - M * 2, y, 4.5); y += 5
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRETO)
 doc.text(`COMODATÁRIO: ${data.empresa || '___________________________'}`, M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
-const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
-doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
+const comodatario = `PESSOA JURÍDICA DE DIREITO PRIVADO, INSCRITA NO CNPJ SOB Nº ${(data.cnpj || '___________________________')}, COM SEDE NA ${limparTexto(data.endereco) ? limparTexto(data.endereco).toUpperCase() : '___________________________'}.`
+y = textJustified(doc, comodatario, M, W - M * 2, y, 4.5); y += 8
 
 const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte', 'vinte e uma', 'vinte e duas', 'vinte e três', 'vinte e quatro', 'vinte e cinco', 'vinte e seis', 'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e uma', 'trinta e duas', 'trinta e três', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete', 'trinta e oito', 'trinta e nove', 'quarenta']
 function qtdExtenso(n) { const q = parseInt(n) || 1; return EXTENSO[q] ? `${q} (${EXTENSO[q]})` : String(q) }
