@@ -15,6 +15,7 @@ data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato: true
 })
 const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
 const [selected, setSelected] = useState({})
+const [selectedEquip, setSelectedEquip] = useState({})
 const [customProducts, setCustomProducts] = useState([])
 
 function addCustomProduct() {
@@ -96,7 +97,10 @@ async function handleGerar() {
 if (!cliente.empresa) { alert('Preencha o nome da empresa.'); return }
 setLoading(true)
 try {
-const data = { ...cliente, comodato: tipoProposta === 'comodato' ? comodato : [], produtos: items, vendedora: user.name, genero: user.genero, showTotal, tipoProposta }
+const equipItems = Object.values(selectedEquip)
+  const produtosFinais = tipoProposta === 'equipamentos' ? [...equipItems, ...customProducts] : items
+  const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
+  const data = { ...cliente, comodato: comodatoFinal, produtos: produtosFinais, vendedora: user.name, genero: user.genero, showTotal, tipoProposta }
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
@@ -221,23 +225,68 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
 {tab === 'produtos' && (
 <div>
 {tipoProposta === 'equipamentos' ? (
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 8, marginBottom: '1rem' }}>
-{PRODUCTS.filter(p => p.categoria === 'Equipamentos').map(p => {
-const sel = selected[p.id]
-return (
-<div key={p.id} onClick={() => toggleProduct(p)}
-style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff' }}>
-<div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E' }}>{p.name}</div>
-{sel && (
-<div onClick={e => e.stopPropagation()} style={{ marginTop: 8 }}>
-<input type="number" min="1" value={sel.qty} onChange={e => updateItem(p.id, 'qty', e.target.value)}
-style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-</div>
-)}
-</div>
-)
-})}
-</div>
+<div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 8, marginBottom: '1rem' }}>
+        {PRODUCTS.filter(p => p.categoria === 'Equipamentos').map(p => {
+          const sel = selectedEquip[p.id]
+          return (
+            <div key={p.id} onClick={() => {
+              const s = { ...selectedEquip }
+              if (s[p.id]) delete s[p.id]
+              else s[p.id] = { ...p, qty: 1, price: 0, unit: 'Unidade' }
+              setSelectedEquip(s)
+            }}
+              style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+                {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
+              </div>
+              {sel && (
+                <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
+                    <input type="number" min="1" value={sel.qty}
+                      onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], qty: parseInt(e.target.value) || 1 } }))}
+                      style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 11, color: '#666' }}>R$</span>
+                    <input type="number" min="0" step="0.01" value={sel.price}
+                      onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], price: parseFloat(e.target.value) || 0 } }))}
+                      style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+                    <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+      <div style={{ marginTop: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>Equipamento não está na lista?</span>
+          <button onClick={addCustomProduct} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #1A3A6B', background: '#fff', color: '#1A3A6B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ Adicionar</button>
+        </div>
+        {customProducts.map(cp => (
+          <div key={cp.id} style={{ border: '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', marginBottom: 8, background: '#FFFBF0' }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+              <input placeholder="Nome do equipamento" value={cp.name} onChange={e => updateCustomProduct(cp.id, 'name', e.target.value)}
+                style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 13 }} />
+              <button onClick={() => removeCustomProduct(cp.id)} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: '#FEEEEE', color: '#C0392B', fontSize: 12, cursor: 'pointer' }}>Remover</button>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
+              <input type="number" min="1" value={cp.qty} onChange={e => updateCustomProduct(cp.id, 'qty', e.target.value)}
+                style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+              <span style={{ fontSize: 11, color: '#666', marginLeft: 8 }}>R$</span>
+              <input type="number" min="0" step="0.01" value={cp.price} onChange={e => updateCustomProduct(cp.id, 'price', e.target.value)}
+                style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+              <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
 ) : ['Papel Toalha','Papel Higiênico','Sabonete','Álcool','Refis','Outros'].map(cat => {
 const prods = PRODUCTS.filter(p => p.categoria === cat)
 if (prods.length === 0) return null
