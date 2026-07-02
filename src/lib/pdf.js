@@ -84,7 +84,7 @@ doc.addImage(logoData, 'PNG', M, 3, 28, 20)
 doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
 doc.text('LIMPLINE COMERCIAL', M + 32, 11)
 doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(181, 212, 244)
-doc.text('Dispensers Â· PapÃ©is Â· Comodato', M + 32, 17)
+doc.text('Dispensers · Papéis · Comodato', M + 32, 17)
 doc.setFontSize(7.5); doc.setTextColor(255, 255, 255)
 doc.text('(11) 2335-3500 | limplinecomercial.com.br | vendas@limplinecomercial.com.br', W - M, 22, { align: 'right' })
 doc.setFillColor(245, 196, 0)
@@ -96,9 +96,9 @@ const pageHeight = doc.internal.pageSize.height
 doc.setFillColor(245, 196, 0)
 doc.rect(0, pageHeight - 14, W, 0.5, 'F')
 doc.setFontSize(7); doc.setTextColor(100, 100, 100)
-doc.text('Av. Prof. Sylla Mattos, 68 â Jd. Santa Cruz â CEP 04182-010 â SÃ£o Paulo â SP', W / 2, pageHeight - 9, { align: 'center' })
+doc.text('Av. Prof. Sylla Mattos, 68 – Jd. Santa Cruz – CEP 04182-010 – São Paulo – SP', W / 2, pageHeight - 9, { align: 'center' })
 doc.text('vendas@limplinecomercial.com.br | (11) 2335-3500', W / 2, pageHeight - 5, { align: 'center' })
-doc.text(`PÃ¡gina ${pageNum}`, W - M, pageHeight - 5, { align: 'right' })
+doc.text(`Página ${pageNum}`, W - M, pageHeight - 5, { align: 'right' })
 }
 
 export async function generateProposta(data) {
@@ -116,19 +116,19 @@ doc.text('PROPOSTA DE COMODATO', W / 2, y + 5.5, { align: 'center' })
 y += 14
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-doc.text(`A: ${data.empresa || 'â'}`, M, y)
+doc.text(`A: ${data.empresa || '—'}`, M, y)
 doc.text(`Data: ${data.data || new Date().toLocaleDateString('pt-BR')}`, W - M, y, { align: 'right' })
 y += 5
-doc.text(`Att. ${data.nome || 'â'}${data.cnpj ? ' | CNPJ: ' + data.cnpj : ''}`, M, y)
+doc.text(`Att. ${data.nome || '—'}${data.cnpj ? ' | CNPJ: ' + data.cnpj : ''}`, M, y)
 doc.text(`Validade: ${data.validade || '15 dias'}`, W - M, y, { align: 'right' })
 y += 5
 y += 3
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
 const paragrafos = [
-  'HÃ¡ mais de 20 anos, a Limpline Ã© referÃªncia em soluÃ§Ãµes de higiene corporativa atravÃ©s do sistema de comodato, oferecendo qualidade, pontualidade e economia para empresas de todos os portes.',
-  'Disponibilizamos equipamentos modernos, com possibilidade de personalizaÃ§Ã£o com o seu logo sem custo, proporcionando ambientes mais organizados, elegantes e funcionais.',
-  'No sistema de comodato, sua empresa recebe os equipamentos sem custo de aquisiÃ§Ã£o, contando com instalaÃ§Ã£o, orientaÃ§Ã£o de uso e suporte especializado. A parceria Ã© mantida atravÃ©s da fidelidade no fornecimento dos insumos, garantindo qualidade, padronizaÃ§Ã£o e o abastecimento contÃ­nuo dos produtos.',
+  'Há mais de 20 anos, a Limpline é referência em soluções de higiene corporativa através do sistema de comodato, oferecendo qualidade, pontualidade e economia para empresas de todos os portes.',
+  'Disponibilizamos equipamentos modernos, com possibilidade de personalização com o seu logo sem custo, proporcionando ambientes mais organizados, elegantes e funcionais.',
+  'No sistema de comodato, sua empresa recebe os equipamentos sem custo de aquisição, contando com instalação, orientação de uso e suporte especializado. A parceria é mantida através da fidelidade no fornecimento dos insumos, garantindo qualidade, padronização e o abastecimento contínuo dos produtos.',
 ]
 paragrafos.forEach(p => {
   y = textJustified(doc, p, M, W - M * 2, y, 4.5); y += 3
@@ -138,11 +138,11 @@ doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
 doc.text('Nossos diferenciais:', M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
 const info = [
-  'â¢ Equipamentos personalizados com o logo da sua empresa;',
-  'â¢ SimulaÃ§Ã£o dos espaÃ§os para visualizaÃ§Ã£o do projeto antes da instalaÃ§Ã£o;',
-  'â¢ Treinamento da equipe para utilizaÃ§Ã£o e abastecimento correto dos equipamentos;',
-  'â¢ Entrega de materiais em atÃ© 2 dias Ãºteis, mantendo o abastecimento sempre em dia;',
-  'â¢ ManutenÃ§Ã£o corretiva em atÃ© 5 dias Ãºteis.',
+  '• Equipamentos personalizados com o logo da sua empresa;',
+  '• Simulação dos espaços para visualização do projeto antes da instalação;',
+  '• Treinamento da equipe para utilização e abastecimento correto dos equipamentos;',
+  '• Entrega de materiais em até 2 dias úteis, mantendo o abastecimento sempre em dia;',
+  '• Manutenção corretiva em até 5 dias úteis.',
 ]
 info.forEach(line => {
   const il = doc.splitTextToSize(line, W - M * 2)
@@ -171,7 +171,7 @@ data.comodato.forEach((item, i) => {
   if (y > 265) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
   if (i % 2 === 0) { doc.setFillColor(248, 250, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-  doc.text(item.name || 'â', M + 2, y + 3.5)
+  doc.text(item.name || '—', M + 2, y + 3.5)
   doc.text(String(item.qty || 1), W - M - 20, y + 3.5)
   y += 7
 })
@@ -183,7 +183,7 @@ if (data.produtos && data.produtos.length) {
 doc.setFillColor(...AZUL_M)
 doc.rect(M, y, W - M * 2, 7, 'F')
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-doc.text('Valores e sugestÃ£o do pedido', M + 3, y + 4.8)
+doc.text('Valores e sugestão do pedido', M + 3, y + 4.8)
 y += 11
 const cw = [96, 22, 28, 28]
 doc.setFillColor(230, 241, 251); doc.rect(M, y - 1, cw.reduce((a, b) => a + b), 6, 'F')
@@ -223,7 +223,7 @@ if (data.showTotal !== false) {
 if (data.condicaoPagamento) {
   if (y > 268) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 32 }
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
-  doc.text('CondiÃ§Ã£o de pagamento: ', M, y)
+  doc.text('Condição de pagamento: ', M, y)
   doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
   doc.text(data.condicaoPagamento, M + 42, y)
   y += 8
@@ -231,7 +231,7 @@ if (data.condicaoPagamento) {
 
 if (data.obs) {
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
-doc.text('ObservaÃ§Ãµes:', M, y); y += 5
+doc.text('Observações:', M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
 const obsLines = doc.splitTextToSize(data.obs, W - M * 2)
 for (let oi = 0; oi < obsLines.length; oi++) {
@@ -274,7 +274,7 @@ doc.text('CONTRATO DE COMODATO DE EQUIPAMENTOS E FORNECIMENTO EXCLUSIVO DE SUPRI
 y += 14
 
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
-doc.text('IDENTIFICAÃÃO DAS PARTES CONTRATANTES', M, y); y += 7
+doc.text('IDENTIFICAÇÃO DAS PARTES CONTRATANTES', M, y); y += 7
 
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRETO)
 doc.text('COMODANTE: LIMPLINE COML DESC LIMP E PAP LTDA', M, y); y += 5
@@ -283,43 +283,43 @@ const comodante = 'PESSOA JURÍDICA DE DIREITO PRIVADO, INSCRITA NO CNPJ SOB Nº
 y = textJustified(doc, comodante, M, W - M * 2, y, 4.5); y += 5
 
 doc.setFont('helvetica', 'bold'); doc.setTextColor(...PRETO)
-doc.text(`COMODATÃRIO: ${data.empresa || '___________________________'}`, M, y); y += 5
+doc.text(`COMODATÁRIO: ${data.empresa || '___________________________'}`, M, y); y += 5
 doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-const comodatario = `Pessoa jurÃ­dica de direito privado, inscrita no CNPJ sob nÂº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
+const comodatario = `Pessoa jurídica de direito privado, inscrita no CNPJ sob nº ${data.cnpj || '___________________________'}, com sede na ${limparTexto(data.endereco) || '___________________________'}.`
 const lComodatario = doc.splitTextToSize(comodatario, W - M * 2)
 doc.text(lComodatario, M, y); y += lComodatario.length * 4.5 + 8
 
-const EXTENSO = ['', 'uma', 'duas', 'trÃªs', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte', 'vinte e uma', 'vinte e duas', 'vinte e trÃªs', 'vinte e quatro', 'vinte e cinco', 'vinte e seis', 'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e uma', 'trinta e duas', 'trinta e trÃªs', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete', 'trinta e oito', 'trinta e nove', 'quarenta']
+const EXTENSO = ['', 'uma', 'duas', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte', 'vinte e uma', 'vinte e duas', 'vinte e três', 'vinte e quatro', 'vinte e cinco', 'vinte e seis', 'vinte e sete', 'vinte e oito', 'vinte e nove', 'trinta', 'trinta e uma', 'trinta e duas', 'trinta e três', 'trinta e quatro', 'trinta e cinco', 'trinta e seis', 'trinta e sete', 'trinta e oito', 'trinta e nove', 'quarenta']
 function qtdExtenso(n) { const q = parseInt(n) || 1; return EXTENSO[q] ? `${q} (${EXTENSO[q]})` : String(q) }
 
 const clausulas = [
 {
-titulo: 'CLÃUSULA 1Âª â DO OBJETO',
-texto: `O presente contrato tem por objeto a cessÃ£o gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilizaÃ§Ã£o pelo COMODATÃRIO:\n${(data.comodato || []).map(c => `â¢ ${qtdExtenso(c.qty)} unidade${parseInt(c.qty) > 1 ? 's' : ''} de ${c.name}`).join('\n') || 'â¢ (equipamentos a definir)'}\n\nParÃ¡grafo Ãºnico. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, nÃ£o gerando ao COMODATÃRIO qualquer direito de retenÃ§Ã£o, posse definitiva ou aquisiÃ§Ã£o.`
+titulo: 'CLÁUSULA 1ª — DO OBJETO',
+texto: `O presente contrato tem por objeto a cessão gratuita, em regime de comodato, dos equipamentos abaixo descritos, de propriedade exclusiva do COMODANTE, para utilização pelo COMODATÁRIO:\n${(data.comodato || []).map(c => `• ${qtdExtenso(c.qty)} unidade${parseInt(c.qty) > 1 ? 's' : ''} de ${c.name}`).join('\n') || '• (equipamentos a definir)'}\n\nParágrafo único. Os equipamentos ora cedidos permanecem de propriedade exclusiva do COMODANTE, não gerando ao COMODATÁRIO qualquer direito de retenção, posse definitiva ou aquisição.`
 },
 {
-titulo: 'CLÃUSULA 2Âª â DAS OBRIGAÃÃES DO COMODATÃRIO',
-texto: 'O COMODATÃRIO declara receber os equipamentos em perfeito estado de conservaÃ§Ã£o e funcionamento, comprometendo-se a:\nI â Zelar pela guarda, conservaÃ§Ã£o e correta utilizaÃ§Ã£o dos equipamentos;\nII â Utilizar exclusivamente produtos e suprimentos fornecidos pelo COMODANTE;\nIII â Comunicar imediatamente ao COMODANTE qualquer defeito, dano ou irregularidade;\nIV â Restituir os equipamentos ao tÃ©rmino deste contrato nas mesmas condiÃ§Ãµes em que os recebeu.\n\nÂ§1Âº O COMODATÃRIO serÃ¡ integralmente responsÃ¡vel pelos danos decorrentes de mau uso, vandalismo ou negligÃªncia.\nÂ§2Âº NÃ£o haverÃ¡ exigÃªncia de consumo mÃ­nimo mensal, permanecendo a obrigaÃ§Ã£o de exclusividade de aquisiÃ§Ã£o junto ao COMODANTE.'
+titulo: 'CLÁUSULA 2ª — DAS OBRIGAÇÕES DO COMODATÁRIO',
+texto: 'O COMODATÁRIO declara receber os equipamentos em perfeito estado de conservação e funcionamento, comprometendo-se a:\nI — Zelar pela guarda, conservação e correta utilização dos equipamentos;\nII — Utilizar exclusivamente produtos e suprimentos fornecidos pelo COMODANTE;\nIII — Comunicar imediatamente ao COMODANTE qualquer defeito, dano ou irregularidade;\nIV — Restituir os equipamentos ao término deste contrato nas mesmas condições em que os recebeu.\n\n§1º O COMODATÁRIO será integralmente responsável pelos danos decorrentes de mau uso, vandalismo ou negligência.\n§2º Não haverá exigência de consumo mínimo mensal, permanecendo a obrigação de exclusividade de aquisição junto ao COMODANTE.'
 },
 {
-titulo: 'CLÃUSULA 3Âª â DAS OBRIGAÃÃES DO COMODANTE',
-texto: 'O COMODANTE obriga-se a:\nI â Realizar a instalaÃ§Ã£o dos equipamentos;\nII â Prestar manutenÃ§Ã£o corretiva sem custos ao COMODATÃRIO;\nIII â Realizar os reparos necessÃ¡rios no prazo mÃ¡ximo de atÃ© 5 (cinco) dias Ãºteis apÃ³s comunicaÃ§Ã£o formal.\n\nParÃ¡grafo Ãºnico. NÃ£o estarÃ£o cobertos pela manutenÃ§Ã£o gratuita os danos decorrentes de vandalismo, mau uso ou utilizaÃ§Ã£o inadequada dos equipamentos.'
+titulo: 'CLÁUSULA 3ª — DAS OBRIGAÇÕES DO COMODANTE',
+texto: 'O COMODANTE obriga-se a:\nI — Realizar a instalação dos equipamentos;\nII — Prestar manutenção corretiva sem custos ao COMODATÁRIO;\nIII — Realizar os reparos necessários no prazo máximo de até 5 (cinco) dias úteis após comunicação formal.\n\nParágrafo único. Não estarão cobertos pela manutenção gratuita os danos decorrentes de vandalismo, mau uso ou utilização inadequada dos equipamentos.'
 },
 {
-titulo: 'CLÃUSULA 4Âª â DO PRAZO',
-texto: 'O presente contrato vigorarÃ¡ pelo prazo determinado de 12 (doze) meses, contados da data de sua assinatura.\n\nÂ§1Âº Findo o prazo inicial, o contrato serÃ¡ automaticamente renovado por prazo indeterminado, salvo manifestaÃ§Ã£o expressa e escrita em contrÃ¡rio.\nÂ§2Âº Permanecendo os equipamentos em posse do COMODATÃRIO apÃ³s o tÃ©rmino do prazo, sem oposiÃ§Ã£o do COMODANTE, considerar-se-Ã¡ automaticamente prorrogado o presente instrumento.'
+titulo: 'CLÁUSULA 4ª — DO PRAZO',
+texto: 'O presente contrato vigorará pelo prazo determinado de 12 (doze) meses, contados da data de sua assinatura.\n\n§1º Findo o prazo inicial, o contrato será automaticamente renovado por prazo indeterminado, salvo manifestação expressa e escrita em contrário.\n§2º Permanecendo os equipamentos em posse do COMODATÁRIO após o término do prazo, sem oposição do COMODANTE, considerar-se-á automaticamente prorrogado o presente instrumento.'
 },
 {
-titulo: 'CLÃUSULA 5Âª â DA RESCISÃO',
-texto: 'O presente contrato poderÃ¡ ser rescindido por qualquer das partes, sem incidÃªncia de multa ou Ã´nus, mediante aviso prÃ©vio por escrito com antecedÃªncia mÃ­nima de 30 (trinta) dias.\n\nÂ§1Âº O inadimplemento financeiro superior a 30 (trinta) dias autorizarÃ¡ o COMODANTE a rescindir imediatamente o contrato e promover a retirada dos equipamentos.'
+titulo: 'CLÁUSULA 5ª — DA RESCISÃO',
+texto: 'O presente contrato poderá ser rescindido por qualquer das partes, sem incidência de multa ou ônus, mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\n§1º O inadimplemento financeiro superior a 30 (trinta) dias autorizará o COMODANTE a rescindir imediatamente o contrato e promover a retirada dos equipamentos.'
 },
 {
-titulo: 'CLÃUSULA 6Âª â DA DEVOLUÃÃO DOS EQUIPAMENTOS',
-texto: 'Encerrado o contrato por qualquer motivo, o COMODATÃRIO deverÃ¡ disponibilizar os equipamentos para retirada pelo COMODANTE no prazo mÃ¡ximo de 20 (vinte) dias corridos, contados da notificaÃ§Ã£o de encerramento.'
+titulo: 'CLÁUSULA 6ª — DA DEVOLUÇÃO DOS EQUIPAMENTOS',
+texto: 'Encerrado o contrato por qualquer motivo, o COMODATÁRIO deverá disponibilizar os equipamentos para retirada pelo COMODANTE no prazo máximo de 20 (vinte) dias corridos, contados da notificação de encerramento.'
 },
 {
-titulo: 'CLÃUSULA 7Âª â DO FORO',
-texto: 'Fica eleito o foro da Comarca de SÃ£o Paulo/SP para dirimir quaisquer controvÃ©rsias oriundas deste contrato, com renÃºncia expressa a qualquer outro, por mais privilegiado que seja.'
+titulo: 'CLÁUSULA 7ª — DO FORO',
+texto: 'Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.'
 },
 ]
 
@@ -344,7 +344,7 @@ y = textJustified(doc, bloco, M, W - M * 2, y, 4.5)
 if (y > 220) { footer(doc, doc.internal.getNumberOfPages()); doc.addPage(); header(doc, logoData); addWatermark(doc, logoData); y = 30 }
 y += 8
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
-doc.text(`SÃ£o Paulo, ${data.data || '_____ de ________________ de 2026'}.`, M, y); y += 14
+doc.text(`São Paulo, ${data.data || '_____ de ________________ de 2026'}.`, M, y); y += 14
 
 doc.setDrawColor(...AZUL_M); doc.setLineWidth(0.3)
 const nomeComodatario = (data.empresa || 'COMODATÁRIO').toUpperCase()
