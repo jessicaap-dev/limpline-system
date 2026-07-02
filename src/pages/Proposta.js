@@ -178,10 +178,12 @@ style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px sol
 <textarea value={cliente.obs} onChange={e => setCliente(c => ({ ...c, obs: e.target.value }))}
 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
 </div>
-<label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
-<input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
-Incluir minuta do contrato no PDF
-</label>
+{tipoProposta === 'comodato' && (
+  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+    <input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
+    Incluir minuta do contrato no PDF
+  </label>
+)}
 <label style={{ fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
 <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />
 Exibir valor total no PDF
@@ -361,10 +363,12 @@ style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D
 
 {items.length === 0 && <div style={{ color: '#888', fontSize: 13, marginBottom: '1rem' }}>Nenhum produto adicionado.</div>}
 
-<label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', marginBottom: '1rem' }}>
-<input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
-Incluir minuta do contrato no PDF
-</label>
+{tipoProposta === 'comodato' && (
+  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', marginBottom: '1rem' }}>
+    <input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
+    Incluir minuta do contrato no PDF
+  </label>
+)}
 <label style={{ fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
 <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />
 Exibir valor total no PDF
