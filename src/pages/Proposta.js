@@ -218,7 +218,25 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
 
 {tab === 'produtos' && (
 <div>
-{['Papel Toalha','Papel Higiênico','Sabonete','Álcool','Refis','Outros'].map(cat => {
+{tipoProposta === 'equipamentos' ? (
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 8, marginBottom: '1rem' }}>
+{PRODUCTS.filter(p => p.categoria === 'Equipamentos').map(p => {
+const sel = selected[p.id]
+return (
+<div key={p.id} onClick={() => toggleProduct(p)}
+style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff' }}>
+<div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E' }}>{p.name}</div>
+{sel && (
+<div onClick={e => e.stopPropagation()} style={{ marginTop: 8 }}>
+<input type="number" min="1" value={sel.qty} onChange={e => updateItem(p.id, 'qty', e.target.value)}
+style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+</div>
+)}
+</div>
+)
+})}
+</div>
+) : ['Papel Toalha','Papel Higiênico','Sabonete','Álcool','Refis','Outros'].map(cat => {
 const prods = PRODUCTS.filter(p => p.categoria === cat)
 if (prods.length === 0) return null
 return (
@@ -266,6 +284,7 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 </div>
 )
 })}
+)}
 
 <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
