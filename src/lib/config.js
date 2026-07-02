@@ -6,7 +6,7 @@ const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || ''
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 export const USERS = [
-  { id: 1, name: 'JÃ©ssica', email: 'jessica@limplinecomercial.com.br', role: 'admin', genero: 'f' },
+  { id: 1, name: 'Jéssica', email: 'jessica@limplinecomercial.com.br', role: 'admin', genero: 'f' },
   { id: 2, name: 'Romilda', email: 'romilda@limplinecomercial.com.br', role: 'vendedora', genero: 'f' },
   { id: 3, name: 'Juliana', email: 'juliana@limplinecomercial.com.br', role: 'vendedora', genero: 'f' },
   { id: 4, name: 'Marcos', email: 'marcos@limplinecomercial.com.br', role: 'vendedora', genero: 'm' },
@@ -17,28 +17,34 @@ export const USERS = [
 ]
 
 export const PRODUCTS = [
-  { id: 1, name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', units: ['Fardo'] },
-  { id: 2, name: 'Papel Toalha Bobina 6x20x200 mts Celulose', units: ['Fardo'] },
-  { id: 3, name: 'Papel Toalha Bobina 6x20x200 mts Premium', units: ['Fardo'] },
-  { id: 4, name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', units: ['Caixa'] },
-  { id: 5, name: 'Papel Toalha Interfolha com 4.800 folhas Premium', units: ['Caixa'] },
-  { id: 6, name: 'Papel Toalha Interfolha Folha Dupla com 2.400 folhas', units: ['Fardo'] },
-  { id: 7, name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas', units: ['Fardo'] },
-  { id: 8, name: 'Papel HigiÃªnico Cai-Cai com 8.000 folhas', units: ['Caixa'] },
-  { id: 9, name: 'Papel HigiÃªnico RolÃ£o 8x300 mts Luxo', units: ['Fardo'] },
-  { id: 10, name: 'Papel HigiÃªnico RolÃ£o 8x300 mts Premium', units: ['Fardo'] },
-  { id: 11, name: 'Papel HigiÃªnico RolÃ£o Folha Dupla 8x240 mts', units: ['Fardo'] },
-  { id: 12, name: 'Sabonete Espuma Sache', units: ['Caixa', 'Unidade'] },
-  { id: 13, name: 'Sabonete Espuma AntissÃ©ptico', units: ['Caixa', 'Unidade'] },
-  { id: 14, name: 'Sabonete Espuma GalÃ£o com 5 lts', units: ['Caixa', 'Unidade'] },
-  { id: 15, name: 'Sabonete Cremoso GalÃ£o com 5 lts', units: ['Caixa', 'Unidade'] },
-  { id: 16, name: 'Ãlcool Gel Sache com 800 ml', units: ['Caixa', 'Unidade'] },
-  { id: 17, name: 'Ãlcool Spray Sache com 800 ml', units: ['Caixa', 'Unidade'] },
-  { id: 18, name: 'Ãlcool Gel GalÃ£o com 5 lts', units: ['Caixa', 'Unidade'] },
-  { id: 19, name: 'Protetor de Assento SanitÃ¡rio com 86 folhas', units: ['Caixa', 'Pacote'] },
-  { id: 20, name: 'Saquinho para Absorvente com 25 unidades', units: ['Caixa', 'Pacote'] },
-  { id: 21, name: 'Refil FreeCo', units: ['Unidade'] },
-  { id: 22, name: 'Odorizador Refil', units: ['Unidade'] },
+  // PAPEL TOALHA
+  { id: 1,  name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts',        units: ['Fardo'],            categoria: 'Papel Toalha' },
+  { id: 2,  name: 'Papel Toalha Bobina 6x20x200 mts Celulose',           units: ['Fardo'],            categoria: 'Papel Toalha' },
+  { id: 3,  name: 'Papel Toalha Bobina 6x20x200 mts Premium',            units: ['Fardo'],            categoria: 'Papel Toalha' },
+  { id: 4,  name: 'Papel Toalha Interfolha com 4.800 folhas Luxo',       units: ['Caixa'],            categoria: 'Papel Toalha' },
+  { id: 5,  name: 'Papel Toalha Interfolha com 4.800 folhas Premium',    units: ['Caixa'],            categoria: 'Papel Toalha' },
+  { id: 6,  name: 'Papel Toalha Interfolha Folha Dupla com 2.400 folhas',units: ['Fardo'],            categoria: 'Papel Toalha' },
+  { id: 7,  name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas',units: ['Fardo'],            categoria: 'Papel Toalha' },
+  // PAPEL HIGIÊNICO
+  { id: 8,  name: 'Papel Higiênico Cai-Cai com 8.000 folhas',           units: ['Caixa'],            categoria: 'Papel Higiênico' },
+  { id: 9,  name: 'Papel Higiênico Rolão 8x300 mts Luxo',               units: ['Fardo'],            categoria: 'Papel Higiênico' },
+  { id: 10, name: 'Papel Higiênico Rolão 8x300 mts Premium',            units: ['Fardo'],            categoria: 'Papel Higiênico' },
+  { id: 11, name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts',        units: ['Fardo'],            categoria: 'Papel Higiênico' },
+  // SABONETE
+  { id: 12, name: 'Sabonete Espuma Sachê',                               units: ['Caixa','Unidade'], categoria: 'Sabonete' },
+  { id: 13, name: 'Sabonete Espuma Antisséptico',                        units: ['Caixa','Unidade'], categoria: 'Sabonete' },
+  { id: 14, name: 'Sabonete Espuma Galão com 5 lts',                    units: ['Caixa','Unidade'], categoria: 'Sabonete' },
+  { id: 15, name: 'Sabonete Cremoso Galão com 5 lts',                   units: ['Caixa','Unidade'], categoria: 'Sabonete' },
+  // ÁLCOOL
+  { id: 16, name: 'Álcool Gel Sachê com 800 ml',                        units: ['Caixa','Unidade'], categoria: 'Álcool' },
+  { id: 17, name: 'Álcool Spray Sachê com 800 ml',                      units: ['Caixa','Unidade'], categoria: 'Álcool' },
+  { id: 18, name: 'Álcool Gel Galão com 5 lts',                         units: ['Caixa','Unidade'], categoria: 'Álcool' },
+  // OUTROS
+  { id: 19, name: 'Protetor de Assento Sanitário com 86 folhas',        units: ['Caixa','Pacote'],  categoria: 'Outros' },
+  { id: 20, name: 'Saquinho para Absorvente com 25 unidades',           units: ['Caixa','Pacote'],  categoria: 'Outros' },
+  // REFIS
+  { id: 21, name: 'Refil FreeCo',                                        units: ['Unidade'],         categoria: 'Refis' },
+  { id: 22, name: 'Odorizador Refil',                                    units: ['Unidade'],         categoria: 'Refis' },
 ]
 
 export const COMODATO_DEFAULT = [
