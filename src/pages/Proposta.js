@@ -9,6 +9,14 @@ export default function Proposta() {
 const { user } = useAuth()
 const [tab, setTab] = useState('cliente')
 const [tipoProposta, setTipoProposta] = useState('comodato')
+
+function mudarTipo(novoTipo) {
+  setTipoProposta(novoTipo)
+  setComodato(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
+  setSelectedEquip({})
+  setItems([])
+  setCliente(c => ({ ...c, incluirContrato: novoTipo === 'comodato' }))
+}
 const [cliente, setCliente] = useState({
 nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
 data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato: true
@@ -138,7 +146,7 @@ return (
 
 <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' }}>
 {[['comodato','🤝 Proposta Comodato'],['equipamentos','📦 Venda de Equipamentos']].map(([v,l]) => (
-<button key={v} onClick={() => setTipoProposta(v)}
+<button key={v} onClick={() => mudarTipo(v)}
 style={{ padding: '8px 18px', borderRadius: 8, border: '1.5px solid ' + (tipoProposta === v ? '#1A3A6B' : '#D0D8EC'), background: tipoProposta === v ? '#1A3A6B' : '#fff', color: tipoProposta === v ? '#fff' : '#555', fontSize: 13, fontWeight: tipoProposta === v ? 700 : 400, cursor: 'pointer' }}>
 {l}
 </button>
