@@ -169,8 +169,8 @@ doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
 doc.text((data.vendedora || '—'), xAposLabel, y)
 y += 8
 
-if (data.comodato && data.comodato.length) {
-doc.setFillColor(...AZUL_M)
+if (data.tipoProposta !== 'equipamentos' && data.comodato && data.comodato.length > 0) {
+  oc.setFillColor(...AZUL_M)
 doc.rect(M, y, W - M * 2, 7, 'F')
 doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
 doc.text('Suportes a serem instalados sem custo', M + 3, y + 4.8)
