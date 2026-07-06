@@ -253,7 +253,7 @@ for (let oi = 0; oi < obsLines.length; oi++) {
 y += 8
 }
 
-if (data.incluirContrato) {
+if (data.tipoProposta !== 'equipamentos' && data.incluirContrato) {
 doc.addPage(); header(doc, logoData); addWatermark(doc, logoData)
 generateContratoPages(doc, data, logoData)
 }
