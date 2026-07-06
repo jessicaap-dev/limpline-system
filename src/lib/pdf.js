@@ -109,10 +109,11 @@ let y = 30
 header(doc, logoData)
 addWatermark(doc, logoData)
 
+const tituloTxt = data.tipoProposta === 'equipamentos' ? 'PROPOSTA DE VENDA DE EQUIPAMENTOS' : 'PROPOSTA DE COMODATO'
 doc.setFillColor(...AMARELO)
 doc.rect(M, y, W - M * 2, 8, 'F')
 doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
-doc.text(data.tipoProposta === 'equipamentos' ? 'PROPOSTA DE VENDA DE EQUIPAMENTOS' : 'PROPOSTA DE COMODATO', W / 2, y, { align: 'center' })
+doc.text(tituloTxt, W / 2, y + 5.5, { align: 'center' })
 y += 14
 
 doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...CINZA)
