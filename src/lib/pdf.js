@@ -63,17 +63,17 @@ reader.readAsDataURL(blob)
 
 async function addWatermark(doc, logoData) {
   if (!logoData) return
-  const pageWidth = 210
-  const pageHeight = 297
-  const imgWidth = 120
-  const imgHeight = 80
-  const x = (pageWidth - imgWidth) / 2
-  const y = (pageHeight - imgHeight) / 2
-  doc.saveGraphicsState()
-  const GStateClass = doc.GState || window.GState
-doc.setGState(new GStateClass({ opacity: 0.06 }))
-  doc.addImage(logoData, 'PNG', x, y, imgWidth, imgHeight)
-  doc.restoreGraphicsState()
+  try {
+    const pageWidth = 210
+    const pageHeight = 297
+    const imgWidth = 120
+    const imgHeight = 80
+    const x = (pageWidth - imgWidth) / 2
+    const y = (pageHeight - imgHeight) / 2
+    doc.addImage(logoData, 'PNG', x, y, imgWidth, imgHeight)
+  } catch(e) {
+    console.log('watermark skip', e)
+  }
 }
 
 function header(doc, logoData) {
