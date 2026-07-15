@@ -71,9 +71,7 @@ async function addWatermark(doc, logoData) {
     const x = (pageWidth - imgWidth) / 2
     const y = (pageHeight - imgHeight) / 2
     doc.addImage(logoData, 'PNG', x, y, imgWidth, imgHeight)
-  } catch(e) {
-    console.log('watermark skip', e)
-  }
+  } catch(e) {}
 }
 
 function header(doc, logoData) {
