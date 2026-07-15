@@ -70,7 +70,7 @@ async function addWatermark(doc, logoData) {
   const x = (pageWidth - imgWidth) / 2
   const y = (pageHeight - imgHeight) / 2
   doc.saveGraphicsState()
-  doc.setGState(new doc.GState({ opacity: 0.06 }))
+  doc.setGState(new doc.GState || window.GState({ opacity: 0.06 }))
   doc.addImage(logoData, 'PNG', x, y, imgWidth, imgHeight)
   doc.restoreGraphicsState()
 }
