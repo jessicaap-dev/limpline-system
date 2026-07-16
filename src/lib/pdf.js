@@ -96,7 +96,7 @@ function footer(doc) {
   doc.text('vendas@limplinecomercial.com.br | (11) 2335-3500', W / 2, pageHeight - 5, { align: 'center' })
 }
 
-export async function generatePDF(data) {
+export async function generateProposta(data) {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
   const logoData = await loadLogo().catch(() => null)
 
