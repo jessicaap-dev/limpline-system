@@ -262,6 +262,16 @@ export async function generatePDF(data) {
   doc.save('Proposta_Limpline.pdf')
 }
 
+export async function generateContrato(data) {
+  const { jsPDF } = await import('jspdf')
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+  const logoData = await loadLogo().catch(() => null)
+  header(doc, logoData)
+  await addWatermark(doc, logoData)
+  generateContratoPages(doc, data, logoData)
+  doc.save('Contrato_Limpline.pdf')
+}
+
 function generateContratoPages(doc, data, logoData) {
   let y = 36
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
