@@ -56,14 +56,12 @@ function addWatermark(doc, logo) {
   if (!logo) return
   try {
     const pw = 210, ph = 297
-    const iw = 80, ih = 53
+    const iw = 60, ih = 40
     const x = (pw - iw) / 2
     const y = (ph - ih) / 2
-    doc.setTextColor(220, 220, 220)
-    doc.setFontSize(8)
-    doc.text('Voce faz parte dessa historia!', pw / 2, ph / 2 + 30, { align: 'center' })
-    doc.setTextColor(...PRETO)
-    doc.addImage(logo, 'PNG', x, y + 5, iw, ih)
+    doc.setGState(new doc.GState({ opacity: 0.06 }))
+    doc.addImage(logo, 'PNG', x, y, iw, ih)
+    doc.setGState(new doc.GState({ opacity: 1 }))
   } catch {}
 }
 
