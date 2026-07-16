@@ -144,7 +144,7 @@ export async function generateProposta(data) {
   difs.forEach(d => { doc.setFontSize(9); doc.text(d, M, y); y += 5 }); y += 3
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
   doc.text('Vendedora: ' + limpar(data.vendedora), M, y); y += 8
-  if (data.items && data.items.length > 0) {
+  if (data.produtos && data.produtos.length > 0) {
     doc.setFillColor(...AZUL)
     doc.rect(M, y, W - M * 2, 7, 'F')
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
@@ -157,13 +157,13 @@ export async function generateProposta(data) {
     ;['Produto', 'Qtd.', 'Unit.', 'Total'].forEach((h, i) => { doc.text(h, cx, y + 4, { align: i === 0 ? 'left' : 'center' }); cx += cw[i] })
     y += 7; doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
     let total = 0
-    data.items.forEach((item, idx) => {
+    data.produtos.forEach((item, idx) => {
       if (idx % 2 === 0) { doc.setFillColor(245, 248, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
-      const sub = (item.qty || 0) * (item.preco || 0); total += sub
+      const sub = (item.qty || 0) * (item.preco || item.price || 0); total += sub
       cx = M + 2; doc.setFontSize(8)
-      doc.text(limpar(item.name), cx, y + 3); cx += cw[0]
+      doc.text(limpar(item.name || item.nome), cx, y + 3); cx += cw[0]
       doc.text((item.qty || 0) + ' ' + pluralUnit(item.unit, item.qty), cx, y + 3, { align: 'center' }); cx += cw[1]
-      doc.text(fmtBRL(item.preco || 0), cx, y + 3, { align: 'center' }); cx += cw[2]
+      doc.text(fmtBRL(item.preco || item.price || 0), cx, y + 3, { align: 'center' }); cx += cw[2]
       doc.text(fmtBRL(sub), cx, y + 3, { align: 'center' }); y += 6
     })
     if (data.mostrarTotal !== false) {
@@ -187,7 +187,7 @@ export async function generateProposta(data) {
     data.comodato.filter(e => e.nome).forEach((eq, idx) => {
       if (idx % 2 === 0) { doc.setFillColor(245, 248, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
       doc.setFontSize(8); cx2 = M + 2
-      doc.text(limpar(eq.nome), cx2, y + 3); cx2 += cw2[0]
+      doc.text(limpar(eq.nome || eq.name), cx2, y + 3); cx2 += cw2[0]
       doc.text(String(eq.qty || 1), cx2, y + 3, { align: 'center' }); cx2 += cw2[1]
       doc.text(limpar(eq.obs || ''), cx2, y + 3, { align: 'center' }); y += 6
     }); y += 4
