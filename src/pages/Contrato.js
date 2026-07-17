@@ -65,7 +65,7 @@ export default function Contrato() {
     if (!dados.empresa) { alert('Preencha o nome da empresa.'); return }
     setLoading(true)
     const data = { ...dados, comodato }
-    const fn = generateContrato(data)
+    const fn = await generateContrato(data)
     try {
       await supabase.from('historico').insert({
         tipo: 'contrato',

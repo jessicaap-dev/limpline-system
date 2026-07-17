@@ -311,7 +311,7 @@ return (
 style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
 <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
-{sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>"</span>}
+{sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
 </div>
 {sel && (
 <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -384,7 +384,7 @@ style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D
 <div>
 <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem' }}>
 <div style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B', marginBottom: 8 }}>Cliente</div>
-<div style={{ fontSize: 13, color: '#333' }}>{cliente.empresa || '"'} {cliente.nome ? `| ${cliente.nome}` : ''}</div>
+<div style={{ fontSize: 13, color: '#333' }}>{cliente.empresa || '—'} {cliente.nome ? `| ${cliente.nome}` : ''}</div>
 {cliente.cnpj && <div style={{ fontSize: 12, color: '#666' }}>CNPJ: {cliente.cnpj}</div>}
 <div style={{ fontSize: 12, color: '#666' }}>Validade: {cliente.validade} | Data: {cliente.data}</div>
 <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Vendedora: {user.name}</div>
