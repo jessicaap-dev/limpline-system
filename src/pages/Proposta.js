@@ -14,7 +14,6 @@ function mudarTipo(novoTipo) {
   setTipoProposta(novoTipo)
   setComodato(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
   setSelectedEquip({})
-  setItems([])
   setCliente(c => ({ ...c, incluirContrato: novoTipo === 'comodato' }))
 }
 const [cliente, setCliente] = useState({
@@ -40,7 +39,7 @@ const [showTotal, setShowTotal] = useState(true)
 const [success, setSuccess] = useState('')
 const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 
-const items = [...Object.values(selected), ...customProducts]
+const items = [...Object.values(tipoProposta === 'equipamentos' ? selectedEquip : selected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
 async function buscarCNPJ(cnpj) {
@@ -105,10 +104,8 @@ async function handleGerar() {
 if (!cliente.empresa) { alert('Preencha o nome da empresa.'); return }
 setLoading(true)
 try {
-const equipItems = Object.values(selectedEquip)
-  const produtosFinais = tipoProposta === 'equipamentos' ? [...equipItems, ...customProducts] : items
-  const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
-  const data = { ...cliente, comodato: comodatoFinal, produtos: produtosFinais, vendedora: user.name, genero: user.genero, showTotal, tipoProposta }
+const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
+  const data = { ...cliente, comodato: comodatoFinal, produtos: items, vendedora: user.name, genero: user.genero, showTotal, tipoProposta }
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
@@ -343,7 +340,6 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 </div>
 )
 })}
-)}
 
 <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>

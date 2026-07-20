@@ -27,8 +27,9 @@ function pluralUnit(unit, qty) {
 function justified(doc, text, x, w, y, lh) {
   const lines = doc.splitTextToSize(text, w)
   lines.forEach((line, idx) => {
-    const isLast = idx === lines.length - 1
-    if (isLast || !line.trim()) { doc.text(line, x, y) }
+    const nextLine = lines[idx + 1]
+    const isParagraphEnd = idx === lines.length - 1 || !nextLine || !nextLine.trim()
+    if (isParagraphEnd || !line.trim()) { doc.text(line, x, y) }
     else {
       const words = line.trim().split(' ')
       if (words.length <= 1) { doc.text(line, x, y) }
@@ -42,6 +43,45 @@ function justified(doc, text, x, w, y, lh) {
     y += lh
   })
   return y
+}
+
+function produtosTable(doc, y, produtos, data) {
+  doc.setFillColor(...AZUL)
+  doc.rect(M, y, W - M * 2, 7, 'F')
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
+  doc.text('Valores e sugestão do pedido', M + 2, y + 4.5); y += 9
+  const cw = [90, 28, 28, 28]
+  doc.setFillColor(230, 236, 245); doc.rect(M, y, W - M * 2, 6, 'F')
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
+  let cx = M + 2
+  ;['Produto', 'Qtd.', 'Unit.', 'Total'].forEach((h, i) => {
+    doc.text(h, cx, y + 4, { align: i === 0 ? 'left' : 'center' }); cx += cw[i]
+  })
+  y += 7; doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
+  let total = 0
+  produtos.forEach((item, idx) => {
+    if (idx % 2 === 0) { doc.setFillColor(245, 248, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
+    const preco = item.preco || item.price || 0
+    const qty = item.qty || 1
+    const sub = qty * preco; total += sub
+    cx = M + 2; doc.setFontSize(8)
+    doc.text(limpar(item.name || item.nome || ''), cx, y + 3); cx += cw[0]
+    doc.text(qty + ' ' + pluralUnit(item.unit, qty), cx, y + 3, { align: 'center' }); cx += cw[1]
+    doc.text(fmtBRL(preco), cx, y + 3, { align: 'center' }); cx += cw[2]
+    doc.text(fmtBRL(sub), cx, y + 3, { align: 'center' }); y += 6
+  })
+  if (data.mostrarTotal !== false && data.showTotal !== false) {
+    doc.setFillColor(...AZUL); doc.rect(M, y, W - M * 2, 7, 'F')
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
+    doc.text('Total do pedido:', M + 2, y + 4.5)
+    doc.text(fmtBRL(total), W - M - 2, y + 4.5, { align: 'right' }); y += 10
+  }
+  return y
+}
+
+function produtosTableHeight(produtos, data) {
+  const totalShown = data.mostrarTotal !== false && data.showTotal !== false
+  return 9 + 7 + produtos.length * 6 + (totalShown ? 10 : 0)
 }
 
 async function loadLogo() {
@@ -218,42 +258,20 @@ export async function generateProposta(data) {
     }); y += 4
   }
 
+  // Tabela de produtos/precos
+  const produtos = data.produtos || data.items || []
+  const cabeNaPagina1 = data.tipoProposta === 'equipamentos' &&
+    produtos.length > 0 && y + produtosTableHeight(produtos, data) <= 270
+
+  if (cabeNaPagina1) {
+    y = produtosTable(doc, y, produtos, data)
+  }
+
   footer(doc)
 
-  // PAGINA 2 - Tabela de produtos/precos
-  const produtos = data.produtos || data.items || []
-  if (produtos.length > 0) {
+  if (produtos.length > 0 && !cabeNaPagina1) {
     doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
-    doc.setFillColor(...AZUL)
-    doc.rect(M, y, W - M * 2, 7, 'F')
-    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-    doc.text('Valores e sugestão do pedido', M + 2, y + 4.5); y += 9
-    const cw = [90, 28, 28, 28]
-    doc.setFillColor(230, 236, 245); doc.rect(M, y, W - M * 2, 6, 'F')
-    doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
-    let cx = M + 2
-    ;['Produto', 'Qtd.', 'Unit.', 'Total'].forEach((h, i) => {
-      doc.text(h, cx, y + 4, { align: i === 0 ? 'left' : 'center' }); cx += cw[i]
-    })
-    y += 7; doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-    let total = 0
-    produtos.forEach((item, idx) => {
-      if (idx % 2 === 0) { doc.setFillColor(245, 248, 255); doc.rect(M, y - 1, W - M * 2, 6, 'F') }
-      const preco = item.preco || item.price || 0
-      const qty = item.qty || 1
-      const sub = qty * preco; total += sub
-      cx = M + 2; doc.setFontSize(8)
-      doc.text(limpar(item.name || item.nome || ''), cx, y + 3); cx += cw[0]
-      doc.text(qty + ' ' + pluralUnit(item.unit, qty), cx, y + 3, { align: 'center' }); cx += cw[1]
-      doc.text(fmtBRL(preco), cx, y + 3, { align: 'center' }); cx += cw[2]
-      doc.text(fmtBRL(sub), cx, y + 3, { align: 'center' }); y += 6
-    })
-    if (data.mostrarTotal !== false && data.showTotal !== false) {
-      doc.setFillColor(...AZUL); doc.rect(M, y, W - M * 2, 7, 'F')
-      doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-      doc.text('Total do pedido:', M + 2, y + 4.5)
-      doc.text(fmtBRL(total), W - M - 2, y + 4.5, { align: 'right' }); y += 10
-    }
+    y = produtosTable(doc, y, produtos, data)
     footer(doc)
   }
 
