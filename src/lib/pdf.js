@@ -25,22 +25,23 @@ function pluralUnit(unit, qty) {
 }
 
 function justified(doc, text, x, w, y, lh) {
-  const lines = doc.splitTextToSize(text, w)
-  lines.forEach((line, idx) => {
-    const nextLine = lines[idx + 1]
-    const isParagraphEnd = idx === lines.length - 1 || !nextLine || !nextLine.trim()
-    if (isParagraphEnd || !line.trim()) { doc.text(line, x, y) }
-    else {
-      const words = line.trim().split(' ')
-      if (words.length <= 1) { doc.text(line, x, y) }
+  text.split('\n').forEach(paragrafo => {
+    const lines = doc.splitTextToSize(paragrafo, w)
+    lines.forEach((line, idx) => {
+      const isLast = idx === lines.length - 1
+      if (isLast || !line.trim()) { doc.text(line, x, y) }
       else {
-        const tw = words.reduce((s, ww) => s + doc.getTextWidth(ww), 0)
-        const sp = (w - tw) / (words.length - 1)
-        let cx = x
-        words.forEach(ww => { doc.text(ww, cx, y); cx += doc.getTextWidth(ww) + sp })
+        const words = line.trim().split(' ')
+        if (words.length <= 1) { doc.text(line, x, y) }
+        else {
+          const tw = words.reduce((s, ww) => s + doc.getTextWidth(ww), 0)
+          const sp = (w - tw) / (words.length - 1)
+          let cx = x
+          words.forEach(ww => { doc.text(ww, cx, y); cx += doc.getTextWidth(ww) + sp })
+        }
       }
-    }
-    y += lh
+      y += lh
+    })
   })
   return y
 }
