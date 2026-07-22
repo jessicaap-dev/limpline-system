@@ -237,9 +237,23 @@ export async function generateProposta(data) {
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
   doc.text('Vendedora: ' + limpar(data.vendedora || ''), M, y); y += 10
 
-  // Tabela comodato (pagina 1 - apenas equipamentos)
+  const produtos = data.produtos || data.items || []
   const comodatoItens = (data.comodato || []).filter(e => e.nome || e.name)
+
+  // Tabela de produtos/precos (logo apos "Vendedora")
+  if (produtos.length > 0) {
+    if (y + produtosTableHeight(produtos, data) > 270) {
+      footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
+    }
+    y = produtosTable(doc, y, produtos, data)
+  }
+
+  // Tabela comodato (Suportes a serem instalados sem custo), em seguida
   if (data.tipoProposta !== 'equipamentos' && comodatoItens.length > 0) {
+    const comodatoHeight = 9 + 7 + comodatoItens.length * 6 + 4
+    if (y + comodatoHeight > 270) {
+      footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
+    }
     doc.setFillColor(...AZUL)
     doc.rect(M, y, W - M * 2, 7, 'F')
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
@@ -259,22 +273,7 @@ export async function generateProposta(data) {
     }); y += 4
   }
 
-  // Tabela de produtos/precos
-  const produtos = data.produtos || data.items || []
-  const cabeNaPagina1 = data.tipoProposta === 'equipamentos' &&
-    produtos.length > 0 && y + produtosTableHeight(produtos, data) <= 270
-
-  if (cabeNaPagina1) {
-    y = produtosTable(doc, y, produtos, data)
-  }
-
   footer(doc)
-
-  if (produtos.length > 0 && !cabeNaPagina1) {
-    doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
-    y = produtosTable(doc, y, produtos, data)
-    footer(doc)
-  }
 
   // Contrato (pagina separada)
   if (data.tipoProposta !== 'equipamentos' && data.incluirContrato) {
