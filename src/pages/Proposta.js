@@ -243,7 +243,10 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
             }}
               style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+                  {p.codigo && <div style={{ fontSize: 10, color: '#999' }}>Cód. {p.codigo}</div>}
+                </div>
                 {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
               </div>
               {sel && (
@@ -307,7 +310,10 @@ return (
 <div key={p.id} onClick={() => toggleProduct(p)}
 style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+<div>
 <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+{p.codigo && <div style={{ fontSize: 10, color: '#999' }}>Cód. {p.codigo}</div>}
+</div>
 {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
 </div>
 {sel && (
