@@ -80,7 +80,7 @@ setBuscandoCNPJ(false)
 function toggleProduct(p) {
 const s = { ...selected }
 if (s[p.id]) delete s[p.id]
-else s[p.id] = { ...p, qty: 1, price: 0, unit: p.units[0] }
+else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: p.units[0] }
 setSelected(s)
 }
 
@@ -238,7 +238,7 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
             <div key={p.id} onClick={() => {
               const s = { ...selectedEquip }
               if (s[p.id]) delete s[p.id]
-              else s[p.id] = { ...p, qty: 1, price: 0, unit: 'Unidade' }
+              else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: 'Unidade' }
               setSelectedEquip(s)
             }}
               style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>

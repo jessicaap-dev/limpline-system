@@ -18,18 +18,18 @@ export const USERS = [
 
 export const PRODUCTS = [
 // PAPEL TOALHA
-{ id: 1, name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', units: ['Fardo'], categoria: 'Papel Toalha' },
-{ id: 2, name: 'Papel Toalha Bobina 6x20x200 mts Celulose', units: ['Fardo'], categoria: 'Papel Toalha' },
-{ id: 3, name: 'Papel Toalha Bobina 6x20x200 mts Premium', units: ['Fardo'], categoria: 'Papel Toalha' },
-{ id: 4, name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', units: ['Caixa'], categoria: 'Papel Toalha' },
-{ id: 5, name: 'Papel Toalha Interfolha com 4.800 folhas Premium', units: ['Caixa'], categoria: 'Papel Toalha' },
-{ id: 6, name: 'Papel Toalha Interfolha Folha Dupla com 2.400 folhas',units: ['Fardo'], categoria: 'Papel Toalha' },
-{ id: 7, name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas',units: ['Fardo'], categoria: 'Papel Toalha' },
+{ id: 1, name: 'Papel Toalha Bobina Folha Dupla 6x20x150 mts', units: ['Fardo'], categoria: 'Papel Toalha', codigo: '1152', precoDefault: 185 },
+{ id: 2, name: 'Papel Toalha Bobina 6x20x200 mts Celulose', units: ['Fardo'], categoria: 'Papel Toalha', codigo: '1026', precoDefault: 197 },
+{ id: 3, name: 'Papel Toalha Bobina 6x20x200 mts Premium', units: ['Fardo'], categoria: 'Papel Toalha', codigo: '1', precoDefault: 169 },
+{ id: 4, name: 'Papel Toalha Interfolha com 4.800 folhas Luxo', units: ['Caixa'], categoria: 'Papel Toalha', codigo: '17', precoDefault: 196 },
+{ id: 5, name: 'Papel Toalha Interfolha com 4.800 folhas Premium', units: ['Caixa'], categoria: 'Papel Toalha', codigo: '16', precoDefault: 169 },
+{ id: 6, name: 'Papel Toalha Interfolha Folha Dupla com 2.400 folhas',units: ['Fardo'], categoria: 'Papel Toalha', codigo: '14', precoDefault: 259 },
+{ id: 7, name: 'Papel Toalha Interfolha Folha Dupla com 2.000 folhas',units: ['Fardo'], categoria: 'Papel Toalha', codigo: '970', precoDefault: 133 },
 // PAPEL HIGIÊNICO
 { id: 8, name: 'Papel Higiênico Cai-Cai com 8.000 folhas', units: ['Caixa'], categoria: 'Papel Higiênico' },
-{ id: 9, name: 'Papel Higiênico Rolão 8x300 mts Luxo', units: ['Fardo'], categoria: 'Papel Higiênico' },
-{ id: 10, name: 'Papel Higiênico Rolão 8x300 mts Premium', units: ['Fardo'], categoria: 'Papel Higiênico' },
-{ id: 11, name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts', units: ['Fardo'], categoria: 'Papel Higiênico' },
+{ id: 9, name: 'Papel Higiênico Rolão 8x300 mts Luxo', units: ['Fardo'], categoria: 'Papel Higiênico', codigo: '40', precoDefault: 113 },
+{ id: 10, name: 'Papel Higiênico Rolão 8x300 mts Premium', units: ['Fardo'], categoria: 'Papel Higiênico', codigo: '804', precoDefault: 146 },
+{ id: 11, name: 'Papel Higiênico Rolão Folha Dupla 8x240 mts', units: ['Fardo'], categoria: 'Papel Higiênico', codigo: '981', precoDefault: 196 },
 // SABONETE
 { id: 12, name: 'Sabonete Espuma Sachê', units: ['Caixa','Unidade'], categoria: 'Sabonete' },
 { id: 13, name: 'Sabonete Espuma Antisséptico', units: ['Caixa','Unidade'], categoria: 'Sabonete' },
