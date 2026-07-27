@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useAuth } from '../lib/auth'
-import { PRODUCTS, COMODATO_DEFAULT, fmtBRL } from '../lib/config'
+import { PRODUCTS, COMODATO_DEFAULT, fmtBRL, pluralUnit } from '../lib/config'
 import { generateProposta } from '../lib/pdf'
 import { supabase } from '../lib/config'
 import Layout from '../components/Layout'
@@ -406,7 +406,7 @@ style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D
 {items.map((it, i) => (
 <tr key={it.id} style={{ background: i % 2 === 0 ? '#F8FAFF' : '#fff' }}>
 <td style={{ padding: '8px 12px', color: '#1A1A2E' }}>{it.name}</td>
-<td style={{ padding: '8px 12px', textAlign: 'right', color: '#444' }}>{it.qty} {it.unit}</td>
+<td style={{ padding: '8px 12px', textAlign: 'right', color: '#444' }}>{it.qty} {pluralUnit(it.unit, it.qty)}</td>
 <td style={{ padding: '8px 12px', textAlign: 'right', color: '#444' }}>{fmtBRL(it.price)}</td>
 <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 500 }}>{fmtBRL(it.qty * (it.price || 0))}</td>
 </tr>

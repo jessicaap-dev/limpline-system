@@ -77,6 +77,10 @@ export const COMODATO_DEFAULT = [
 { name: 'Desodorizador de Ambiente', qty: 1 },
 ]
 
+export function pluralUnit(unit, qty) {
+return !unit || qty <= 1 ? (unit || '') : ({ 'Unidade': 'Unidades', 'Caixa': 'Caixas', 'Fardo': 'Fardos', 'Pacote': 'Pacotes' }[unit] || unit)
+}
+
 export function fmtBRL(v) {
 return 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }

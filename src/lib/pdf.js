@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import { fmtBRL } from './config'
+import { fmtBRL, pluralUnit } from './config'
 
 const AZUL = [26, 58, 107]
 const AZUL_M = [46, 95, 171]
@@ -16,12 +16,6 @@ function limpar(s) {
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/\u2026/g, '...')
-}
-
-function pluralUnit(unit, qty) {
-  if (!unit || qty <= 1) return unit || ''
-  const map = { 'Unidade': 'Unidades', 'Caixa': 'Caixas', 'Fardo': 'Fardos', 'Pacote': 'Pacotes' }
-  return map[unit] || unit
 }
 
 function justified(doc, text, x, w, y, lh) {
