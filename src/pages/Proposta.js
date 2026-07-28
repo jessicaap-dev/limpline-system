@@ -12,18 +12,25 @@ const [tipoProposta, setTipoProposta] = useState('comodato')
 
 function mudarTipo(novoTipo) {
   setTipoProposta(novoTipo)
-  setComodato(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
-  setSelectedEquip({})
-  setCliente(c => ({ ...c, incluirContrato: novoTipo === 'comodato' }))
+  if (novoTipo === 'equipamentos' && tab === 'comodato') setTab('cliente')
 }
-const [cliente, setCliente] = useState({
-nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
-data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato: true
-})
+function clienteVazio(incluirContrato) {
+  return {
+    nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
+    data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato
+  }
+}
+const [clienteComodato, setClienteComodato] = useState(clienteVazio(true))
+const [clienteEquipamentos, setClienteEquipamentos] = useState(clienteVazio(false))
+const cliente = tipoProposta === 'equipamentos' ? clienteEquipamentos : clienteComodato
+const setCliente = tipoProposta === 'equipamentos' ? setClienteEquipamentos : setClienteComodato
 const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
 const [selected, setSelected] = useState({})
 const [selectedEquip, setSelectedEquip] = useState({})
-const [customProducts, setCustomProducts] = useState([])
+const [customComodato, setCustomComodato] = useState([])
+const [customEquip, setCustomEquip] = useState([])
+const customProducts = tipoProposta === 'equipamentos' ? customEquip : customComodato
+const setCustomProducts = tipoProposta === 'equipamentos' ? setCustomEquip : setCustomComodato
 
 function addCustomProduct() {
 setCustomProducts(c => [...c, { id: 'custom-' + Date.now(), name: '', unit: 'Caixa', qty: 1, price: 0 }])
