@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
 import { PRODUCTS, COMODATO_DEFAULT, fmtBRL, pluralUnit } from '../lib/config'
 import { generateProposta } from '../lib/pdf'
 import { supabase } from '../lib/config'
+import { fetchCatalogo, equipamentoParaProduto } from '../lib/catalogoItens'
 import Layout from '../components/Layout'
 
 export default function Proposta() {
@@ -45,6 +46,15 @@ const [loading, setLoading] = useState(false)
 const [showTotal, setShowTotal] = useState(true)
 const [success, setSuccess] = useState('')
 const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
+const [equipamentos, setEquipamentos] = useState([])
+const [carregandoEquipamentos, setCarregandoEquipamentos] = useState(true)
+
+useEffect(() => {
+  fetchCatalogo('equipamento').then(rows => {
+    setEquipamentos(rows.map(equipamentoParaProduto))
+    setCarregandoEquipamentos(false)
+  })
+}, [])
 
 const items = [...Object.values(tipoProposta === 'equipamentos' ? selectedEquip : selected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
@@ -238,45 +248,55 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
 <div>
 {tipoProposta === 'equipamentos' ? (
 <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 8, marginBottom: '1rem' }}>
-        {PRODUCTS.filter(p => p.categoria === 'Equipamentos').map(p => {
-          const sel = selectedEquip[p.id]
-          return (
-            <div key={p.id} onClick={() => {
-              const s = { ...selectedEquip }
-              if (s[p.id]) delete s[p.id]
-              else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: 'Unidade' }
-              setSelectedEquip(s)
-            }}
-              style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
-                  {p.codigo && <div style={{ fontSize: 10, color: '#999' }}>Cód. {p.codigo}</div>}
-                </div>
-                {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
-              </div>
-              {sel && (
-                <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
-                    <input type="number" min="1" value={sel.qty}
-                      onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], qty: parseInt(e.target.value) || 1 } }))}
-                      style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+      {carregandoEquipamentos && (
+        <div style={{ color: '#888', fontSize: 13, padding: '0.5rem 0 1rem' }}>Carregando equipamentos...</div>
+      )}
+      {!carregandoEquipamentos && Array.from(new Set(equipamentos.map(p => p.categoria))).map(linha => (
+        <div key={linha} style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1A3A6B', textTransform: 'uppercase', letterSpacing: 1, borderBottom: '1.5px solid #E8EDF5', paddingBottom: 6, marginBottom: 10 }}>
+            {linha}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 8 }}>
+            {equipamentos.filter(p => p.categoria === linha).map(p => {
+              const sel = selectedEquip[p.id]
+              return (
+                <div key={p.id} onClick={() => {
+                  const s = { ...selectedEquip }
+                  if (s[p.id]) delete s[p.id]
+                  else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: 'Unidade' }
+                  setSelectedEquip(s)
+                }}
+                  style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+                      {!p.precoDefault && <div style={{ fontSize: 10, color: '#C0392B' }}>Valor a validar</div>}
+                    </div>
+                    {sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 11, color: '#666' }}>R$</span>
-                    <input type="number" min="0" step="0.01" value={sel.price}
-                      onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], price: parseFloat(e.target.value) || 0 } }))}
-                      style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-                    <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
-                  </div>
+                  {sel && (
+                    <div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
+                        <input type="number" min="1" value={sel.qty}
+                          onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], qty: parseInt(e.target.value) || 1 } }))}
+                          style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 11, color: '#666' }}>R$</span>
+                        <input type="number" min="0" step="0.01" value={sel.price}
+                          onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], price: parseFloat(e.target.value) || 0 } }))}
+                          style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+                        <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
       <div style={{ marginTop: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>Equipamento não está na lista?</span>

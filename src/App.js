@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Proposta from './pages/Proposta'
 import Contrato from './pages/Contrato'
 import Painel from './pages/Painel'
+import AdminCatalogo from './pages/AdminCatalogo'
 
 function PrivateRoute({ children, adminOnly }) {
   const { user } = useAuth()
@@ -21,6 +22,7 @@ function AppRoutes() {
       <Route path="/proposta" element={<PrivateRoute><Proposta /></PrivateRoute>} />
       <Route path="/contrato" element={<PrivateRoute><Contrato /></PrivateRoute>} />
       <Route path="/painel" element={<PrivateRoute adminOnly><Painel /></PrivateRoute>} />
+      <Route path="/catalogo" element={<PrivateRoute adminOnly><AdminCatalogo /></PrivateRoute>} />
       <Route path="*" element={<Navigate to={user ? '/proposta' : '/login'} />} />
     </Routes>
   )
