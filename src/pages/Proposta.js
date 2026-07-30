@@ -382,6 +382,7 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 )
 })}
 
+{tipoProposta !== 'equipamentos' && (
 <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
 <span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>Produto não está na lista?</span>
@@ -410,6 +411,7 @@ style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D
 </div>
 ))}
 </div>
+)}
 <div style={{ display: 'flex', gap: 8 }}>
 <button onClick={() => setTab(tipoProposta === 'comodato' ? 'comodato' : 'cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
 <button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
