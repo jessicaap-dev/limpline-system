@@ -1,4 +1,4 @@
--- Rodar no SQL Editor do Supabase (projeto euocaryaglxbkfxhmpgs)
+-- Rodar no SQL Editor do Supabase (projeto hzsvbkapluywtfwedlae — o usado de fato em produção)
 -- Catálogo editável de Produtos e Equipamentos pelo Admin do limpline-system
 
 create table if not exists public.catalogo_itens (

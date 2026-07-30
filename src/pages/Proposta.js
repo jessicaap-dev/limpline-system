@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../lib/auth'
-import { PRODUCTS, COMODATO_DEFAULT, fmtBRL, pluralUnit } from '../lib/config'
+import { COMODATO_DEFAULT, fmtBRL, pluralUnit } from '../lib/config'
 import { generateProposta } from '../lib/pdf'
 import { supabase } from '../lib/config'
-import { fetchCatalogo, equipamentoParaProduto } from '../lib/catalogoItens'
+import { fetchCatalogo, equipamentoParaProduto, produtoCatalogoParaProduto } from '../lib/catalogoItens'
 import Layout from '../components/Layout'
 
 export default function Proposta() {
@@ -48,11 +48,17 @@ const [success, setSuccess] = useState('')
 const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 const [equipamentos, setEquipamentos] = useState([])
 const [carregandoEquipamentos, setCarregandoEquipamentos] = useState(true)
+const [produtosCatalogo, setProdutosCatalogo] = useState([])
+const [carregandoProdutos, setCarregandoProdutos] = useState(true)
 
 useEffect(() => {
   fetchCatalogo('equipamento').then(rows => {
     setEquipamentos(rows.map(equipamentoParaProduto))
     setCarregandoEquipamentos(false)
+  })
+  fetchCatalogo('produto').then(rows => {
+    setProdutosCatalogo(rows.map(produtoCatalogoParaProduto))
+    setCarregandoProdutos(false)
   })
 }, [])
 
@@ -322,8 +328,10 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
         ))}
       </div>
     </div>
-) : ['Papel Toalha','Papel Higiênico','Sabonete','Álcool','Refis','Outros'].map(cat => {
-const prods = PRODUCTS.filter(p => p.categoria === cat)
+) : carregandoProdutos ? (
+<div style={{ color: '#888', fontSize: 13, padding: '0.5rem 0 1rem' }}>Carregando produtos...</div>
+) : Array.from(new Set(produtosCatalogo.map(p => p.categoria))).map(cat => {
+const prods = produtosCatalogo.filter(p => p.categoria === cat)
 if (prods.length === 0) return null
 return (
 <div key={cat} style={{ marginBottom: '1.5rem' }}>

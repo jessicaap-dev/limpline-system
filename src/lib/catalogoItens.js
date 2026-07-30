@@ -49,3 +49,14 @@ export function equipamentoParaProduto(row) {
     units: row.unidades && row.unidades.length ? row.unidades : ['Unidade'],
   }
 }
+
+export function produtoCatalogoParaProduto(row) {
+  return {
+    id: row.id,
+    name: row.nome,
+    categoria: row.categoria,
+    codigo: row.codigo || null,
+    precoDefault: row.valor_padrao || 0,
+    units: row.unidades && row.unidades.length ? row.unidades : ['Unidade'],
+  }
+}
