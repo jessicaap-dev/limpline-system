@@ -43,6 +43,36 @@ export default function Painel() {
     return true
   })
 
+  function exportarCSV() {
+    const colunas = ['Data/Hora', 'Vendedora', 'E-mail', 'Empresa', 'Responsável', 'CNPJ', 'Tipo', 'Qtd. Itens', 'Valor Total', 'Arquivo']
+    function csvEscape(v) {
+      const s = v === null || v === undefined ? '' : String(v)
+      return '"' + s.replace(/"/g, '""') + '"'
+    }
+    const linhas = filtered.map(h => [
+      fmtDate(h.created_at),
+      h.vendedora,
+      h.email || '',
+      h.cliente_empresa || '',
+      h.cliente_nome || '',
+      h.cliente_cnpj || '',
+      h.tipo,
+      h.qtd_itens ?? '',
+      h.total_valor != null ? String(h.total_valor).replace('.', ',') : '',
+      h.arquivo || '',
+    ].map(csvEscape).join(';'))
+    const csv = '﻿' + colunas.map(csvEscape).join(';') + '\n' + linhas.join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const sufixoVendedora = filtroVendedora !== 'todas' ? '_' + filtroVendedora.toLowerCase() : ''
+    const dataHoje = new Date().toLocaleDateString('pt-BR').split('/').join('-')
+    a.href = url
+    a.download = `relatorio_propostas${sufixoVendedora}_${dataHoje}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <Layout title="Painel — Histórico">
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: '1.5rem' }}>
@@ -72,6 +102,9 @@ export default function Painel() {
         </select>
         <button onClick={loadHistorico} style={{ padding: '7px 14px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>
           🔄 Atualizar
+        </button>
+        <button onClick={exportarCSV} disabled={filtered.length === 0} style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: filtered.length === 0 ? '#B9C4D6' : '#1A3A6B', color: '#fff', fontSize: 13, fontWeight: 600, cursor: filtered.length === 0 ? 'not-allowed' : 'pointer' }}>
+          📥 Exportar CSV
         </button>
         <span style={{ fontSize: 12, color: '#888', marginLeft: 'auto' }}>{filtered.length} registro(s)</span>
       </div>
