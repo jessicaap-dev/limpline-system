@@ -267,6 +267,20 @@ export async function generateProposta(data) {
     }); y += 4
   }
 
+  // Observações (se houver)
+  if (data.obs && data.obs.trim()) {
+    doc.setFontSize(9)
+    const obsLines = doc.splitTextToSize(limpar(data.obs), W - M * 2)
+    const obsHeight = 5 + obsLines.length * 5 + 4
+    if (y + obsHeight > 270) {
+      footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
+    }
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL_M)
+    doc.text('Observações:', M, y); y += 5
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
+    y = justified(doc, limpar(data.obs), M, W - M * 2, y, 5) + 4
+  }
+
   footer(doc)
 
   // Contrato (pagina separada)
