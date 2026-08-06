@@ -18,6 +18,12 @@ function limpar(s) {
     .replace(/\u2026/g, '...')
 }
 
+function nomeArquivo(prefixo, data) {
+  const empresa = limpar(data.empresa || data.cliente || 'Cliente').trim().replace(/\s+/g, '_').replace(/[<>:"/\\|?*]/g, '')
+  const dataStr = (data.data || new Date().toLocaleDateString('pt-BR')).replace(/\//g, '-')
+  return `${prefixo}_Limpline_${empresa}_${dataStr}.pdf`
+}
+
 function justified(doc, text, x, w, y, lh) {
   text.split('\n').forEach(paragrafo => {
     const lines = doc.splitTextToSize(paragrafo, w)
@@ -289,8 +295,9 @@ export async function generateProposta(data) {
     contratoPages(doc, data, logo)
   }
 
-  doc.save('Proposta_Limpline.pdf')
-  return 'Proposta_Limpline.pdf'
+  const fn = nomeArquivo('Proposta', data)
+  doc.save(fn)
+  return fn
 }
 
 export async function generateContrato(data) {
@@ -299,6 +306,7 @@ export async function generateContrato(data) {
   header(doc, logo)
   addWatermark(doc, logo)
   contratoPages(doc, data, logo)
-  doc.save('Contrato_Limpline.pdf')
-  return 'Contrato_Limpline.pdf'
+  const fn = nomeArquivo('Contrato', data)
+  doc.save(fn)
+  return fn
 }
