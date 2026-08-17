@@ -88,22 +88,26 @@ function produtosTableHeight(produtos, data) {
 async function loadLogo() {
   try {
     const r = await fetch('https://raw.githubusercontent.com/jessicaap-dev/limpline-system/main/public/logo.png')
+    if (!r.ok) return null
     const blob = await r.blob()
-    return new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(blob) })
+    if (!blob.type || !blob.type.startsWith('image/')) return null
+    const dataUrl = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(blob) })
+    return dataUrl && dataUrl.startsWith('data:image/') ? dataUrl : null
   } catch { return null }
 }
 
 function addWatermark(doc, logo) {
   if (!logo) return
+  const pw = 210, ph = 297
+  const iw = 60, ih = 40
+  const x = (pw - iw) / 2
+  const y = (ph - ih) / 2
+  doc.setGState(new doc.GState({ opacity: 0.06 }))
   try {
-    const pw = 210, ph = 297
-    const iw = 60, ih = 40
-    const x = (pw - iw) / 2
-    const y = (ph - ih) / 2
-    doc.setGState(new doc.GState({ opacity: 0.06 }))
     doc.addImage(logo, 'PNG', x, y, iw, ih)
+  } catch {} finally {
     doc.setGState(new doc.GState({ opacity: 1 }))
-  } catch {}
+  }
 }
 
 function header(doc, logo) {
