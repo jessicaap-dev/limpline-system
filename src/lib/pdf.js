@@ -87,7 +87,7 @@ function produtosTableHeight(produtos, data) {
 
 async function loadLogo() {
   try {
-    const r = await fetch('https://raw.githubusercontent.com/jessicaap-dev/limpline-system/main/public/logo.png')
+    const r = await fetch(process.env.PUBLIC_URL + '/logo.png')
     if (!r.ok) return null
     const blob = await r.blob()
     if (!blob.type || !blob.type.startsWith('image/')) return null
