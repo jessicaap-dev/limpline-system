@@ -13,7 +13,7 @@ const [tipoProposta, setTipoProposta] = useState('comodato')
 
 function mudarTipo(novoTipo) {
   setTipoProposta(novoTipo)
-  if (novoTipo === 'equipamentos' && tab === 'comodato') setTab('cliente')
+  if (novoTipo !== 'comodato' && tab === 'comodato') setTab('cliente')
 }
 function clienteVazio(incluirContrato) {
   return {
@@ -23,15 +23,20 @@ function clienteVazio(incluirContrato) {
 }
 const [clienteComodato, setClienteComodato] = useState(clienteVazio(true))
 const [clienteEquipamentos, setClienteEquipamentos] = useState(clienteVazio(false))
-const cliente = tipoProposta === 'equipamentos' ? clienteEquipamentos : clienteComodato
-const setCliente = tipoProposta === 'equipamentos' ? setClienteEquipamentos : setClienteComodato
+const [clienteInsumos, setClienteInsumos] = useState(clienteVazio(false))
+const clienteMap = { comodato: [clienteComodato, setClienteComodato], equipamentos: [clienteEquipamentos, setClienteEquipamentos], insumos: [clienteInsumos, setClienteInsumos] }
+const [cliente, setCliente] = clienteMap[tipoProposta]
 const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
 const [selected, setSelected] = useState({})
 const [selectedEquip, setSelectedEquip] = useState({})
+const [selectedInsumos, setSelectedInsumos] = useState({})
+const produtosSelectedMap = { comodato: [selected, setSelected], insumos: [selectedInsumos, setSelectedInsumos] }
+const [produtosSelected, setProdutosSelected] = produtosSelectedMap[tipoProposta] || produtosSelectedMap.comodato
 const [customComodato, setCustomComodato] = useState([])
 const [customEquip, setCustomEquip] = useState([])
-const customProducts = tipoProposta === 'equipamentos' ? customEquip : customComodato
-const setCustomProducts = tipoProposta === 'equipamentos' ? setCustomEquip : setCustomComodato
+const [customInsumos, setCustomInsumos] = useState([])
+const customMap = { comodato: [customComodato, setCustomComodato], equipamentos: [customEquip, setCustomEquip], insumos: [customInsumos, setCustomInsumos] }
+const [customProducts, setCustomProducts] = customMap[tipoProposta]
 
 function addCustomProduct() {
 setCustomProducts(c => [...c, { id: 'custom-' + Date.now(), name: '', unit: 'Caixa', qty: 1, price: 0 }])
@@ -62,7 +67,7 @@ useEffect(() => {
   })
 }, [])
 
-const items = [...Object.values(tipoProposta === 'equipamentos' ? selectedEquip : selected), ...customProducts]
+const items = [...Object.values(tipoProposta === 'equipamentos' ? selectedEquip : produtosSelected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
 async function buscarCNPJ(cnpj) {
@@ -101,14 +106,14 @@ setBuscandoCNPJ(false)
 }
 
 function toggleProduct(p) {
-const s = { ...selected }
+const s = { ...produtosSelected }
 if (s[p.id]) delete s[p.id]
 else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: p.units[0] }
-setSelected(s)
+setProdutosSelected(s)
 }
 
 function updateItem(id, field, val) {
-setSelected(s => ({ ...s, [id]: { ...s[id], [field]: field === 'qty' ? (parseInt(val) || 1) : (parseFloat(val) || 0) } }))
+setProdutosSelected(s => ({ ...s, [id]: { ...s[id], [field]: field === 'qty' ? (parseInt(val) || 1) : (parseFloat(val) || 0) } }))
 }
 
 function addComodato() {
@@ -132,7 +137,7 @@ const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
-tipo: tipoProposta === 'equipamentos' ? 'equipamentos' : cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
+tipo: tipoProposta === 'equipamentos' ? 'equipamentos' : tipoProposta === 'insumos' ? 'insumos' : cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
 vendedora: user.name,
 email: user.email,
 cliente_nome: cliente.nome || cliente.empresa,
@@ -165,7 +170,7 @@ return (
 )}
 
 <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' }}>
-{[['comodato','🤝 Proposta Comodato'],['equipamentos','📦 Venda de Equipamentos']].map(([v,l]) => (
+{[['comodato','🤝 Proposta Comodato'],['equipamentos','📦 Venda de Equipamentos'],['insumos','🧴 Venda de Insumos']].map(([v,l]) => (
 <button key={v} onClick={() => mudarTipo(v)}
 style={{ padding: '8px 18px', borderRadius: 8, border: '1.5px solid ' + (tipoProposta === v ? '#1A3A6B' : '#D0D8EC'), background: tipoProposta === v ? '#1A3A6B' : '#fff', color: tipoProposta === v ? '#fff' : '#555', fontSize: 13, fontWeight: tipoProposta === v ? 700 : 400, cursor: 'pointer' }}>
 {l}
@@ -340,7 +345,7 @@ return (
 </div>
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 8 }}>
 {prods.map(p => {
-const sel = selected[p.id]
+const sel = produtosSelected[p.id]
 return (
 <div key={p.id} onClick={() => toggleProduct(p)}
 style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
@@ -358,7 +363,7 @@ style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadi
 <input type="number" min="1" value={sel.qty} onChange={e => updateItem(p.id, 'qty', e.target.value)}
 style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
 {p.units.length > 1 ? (
-<select value={sel.unit} onChange={e => setSelected(s => ({ ...s, [p.id]: { ...s[p.id], unit: e.target.value } }))}
+<select value={sel.unit} onChange={e => setProdutosSelected(s => ({ ...s, [p.id]: { ...s[p.id], unit: e.target.value } }))}
 style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px', border: 'none' }}>
 {p.units.map(u => <option key={u} value={u}>{u}</option>)}
 </select>

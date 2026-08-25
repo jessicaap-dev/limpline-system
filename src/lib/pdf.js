@@ -199,7 +199,9 @@ export async function generateProposta(data) {
   addWatermark(doc, logo)
   let y = 36
 
-  const titulo = data.tipoProposta === 'equipamentos' ? 'PROPOSTA DE VENDA DE EQUIPAMENTOS' : 'PROPOSTA DE COMODATO'
+  const titulo = data.tipoProposta === 'equipamentos' ? 'PROPOSTA DE VENDA DE EQUIPAMENTOS'
+    : data.tipoProposta === 'insumos' ? 'PROPOSTA DE VENDA DE INSUMOS'
+    : 'PROPOSTA DE COMODATO'
   doc.setFillColor(...AMARELO)
   doc.rect(M, y, W - M * 2, 8, 'F')
   doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
@@ -213,6 +215,8 @@ export async function generateProposta(data) {
 
   const intro = data.tipoProposta === 'equipamentos'
     ? 'A Limpline oferece equipamentos modernos de higiene corporativa, desenvolvidos para garantir praticidade, durabilidade e eficiência no dia a dia das empresas.\n\nNossa linha de produtos atende diferentes necessidades de ambientes corporativos, contribuindo para espaços mais organizados, higiênicos e funcionais.\n\nA Limpline é referência em soluções práticas para higiene corporativa, oferecendo qualidade e confiança em cada produto.'
+    : data.tipoProposta === 'insumos'
+    ? 'A Limpline oferece uma linha completa de insumos de higiene corporativa — papéis, sabonetes, álcool e refis — com qualidade e procedência garantidas para o dia a dia da sua empresa.\n\nTrabalhamos com entrega ágil e reposição facilitada, para que o abastecimento dos seus insumos nunca seja um problema.\n\nCom mais de 20 anos no mercado, a Limpline é referência em soluções práticas e econômicas para higiene corporativa, atendendo restaurantes, hospitais, escritórios, escolas e muito mais.'
     : 'A Limpline oferece um completo Sistema de Comodato, disponibilizando equipamentos modernos e personalizados de higiene sem custo de aquisição. Nossa proposta é simples: você recebe os dispensers instalados gratuitamente, com treinamento da equipe, e adquire apenas os insumos necessários para o funcionamento.\n\nRealizamos uma simulação dos espaços antes da instalação, garantindo o melhor aproveitamento e estética para o ambiente da sua empresa.\n\nCom mais de 20 anos no mercado, a Limpline é referência em soluções práticas e econômicas para higiene corporativa, atendendo restaurantes, hospitais, escritórios, escolas e muito mais.'
 
   doc.setFontSize(9)
@@ -227,6 +231,14 @@ export async function generateProposta(data) {
         '• Produtos resistentes e de excelente durabilidade;',
         '• Linha completa para higiene corporativa;',
         '• Entrega em até 2 dias úteis em toda Grande SP;',
+        '• Atendimento especializado e suporte pós-venda.',
+      ]
+    : data.tipoProposta === 'insumos'
+    ? [
+        '• Produtos de alta qualidade e procedência garantida;',
+        '• Linha completa de papéis, sabonetes, álcool e refis;',
+        '• Entrega em até 2 dias úteis em toda Grande SP;',
+        '• Reposição facilitada para compra recorrente;',
         '• Atendimento especializado e suporte pós-venda.',
       ]
     : [
@@ -253,7 +265,7 @@ export async function generateProposta(data) {
   }
 
   // Tabela comodato (Suportes a serem instalados sem custo), em seguida
-  if (data.tipoProposta !== 'equipamentos' && comodatoItens.length > 0) {
+  if (data.tipoProposta === 'comodato' && comodatoItens.length > 0) {
     const comodatoHeight = 9 + 7 + comodatoItens.length * 6 + 4
     if (y + comodatoHeight > 270) {
       footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
@@ -294,7 +306,7 @@ export async function generateProposta(data) {
   footer(doc)
 
   // Contrato (pagina separada)
-  if (data.tipoProposta !== 'equipamentos' && data.incluirContrato) {
+  if (data.tipoProposta === 'comodato' && data.incluirContrato) {
     doc.addPage(); header(doc, logo); addWatermark(doc, logo)
     contratoPages(doc, data, logo)
   }
