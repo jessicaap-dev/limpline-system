@@ -39,7 +39,7 @@ const customMap = { comodato: [customComodato, setCustomComodato], equipamentos:
 const [customProducts, setCustomProducts] = customMap[tipoProposta]
 
 function addCustomProduct() {
-setCustomProducts(c => [...c, { id: 'custom-' + Date.now(), name: '', unit: 'Caixa', qty: 1, price: 0 }])
+setCustomProducts(c => [...c, { id: 'custom-' + Date.now(), name: '', unit: tipoProposta === 'equipamentos' ? 'Unidade' : 'Caixa', qty: 1, price: 0 }])
 }
 function updateCustomProduct(id, field, val) {
 setCustomProducts(c => c.map(x => x.id === id ? { ...x, [field]: field === 'qty' ? (parseInt(val) || 1) : field === 'price' ? (parseFloat(val) || 0) : val } : x))
@@ -327,7 +327,10 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
               <span style={{ fontSize: 11, color: '#666', marginLeft: 8 }}>R$</span>
               <input type="number" min="0" step="0.01" value={cp.price} onChange={e => updateCustomProduct(cp.id, 'price', e.target.value)}
                 style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-              <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
+              <select value={cp.unit} onChange={e => updateCustomProduct(cp.id, 'unit', e.target.value)}
+                style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '3px 6px', border: 'none' }}>
+                {['Unidade', 'Caixa', 'Pacote', 'Fardo'].map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
             </div>
           </div>
         ))}
