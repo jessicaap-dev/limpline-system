@@ -24,19 +24,49 @@ function clienteVazio(incluirContrato) {
 const [clienteComodato, setClienteComodato] = useState(clienteVazio(true))
 const [clienteEquipamentos, setClienteEquipamentos] = useState(clienteVazio(false))
 const [clienteInsumos, setClienteInsumos] = useState(clienteVazio(false))
-const clienteMap = { comodato: [clienteComodato, setClienteComodato], equipamentos: [clienteEquipamentos, setClienteEquipamentos], insumos: [clienteInsumos, setClienteInsumos] }
+const [clienteInsumosEquipamentos, setClienteInsumosEquipamentos] = useState(clienteVazio(false))
+const clienteMap = {
+  comodato: [clienteComodato, setClienteComodato],
+  equipamentos: [clienteEquipamentos, setClienteEquipamentos],
+  insumos: [clienteInsumos, setClienteInsumos],
+  insumos_equipamentos: [clienteInsumosEquipamentos, setClienteInsumosEquipamentos],
+}
 const [cliente, setCliente] = clienteMap[tipoProposta]
 const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
 const [selected, setSelected] = useState({})
 const [selectedEquip, setSelectedEquip] = useState({})
 const [selectedInsumos, setSelectedInsumos] = useState({})
-const produtosSelectedMap = { comodato: [selected, setSelected], insumos: [selectedInsumos, setSelectedInsumos] }
-const [produtosSelected, setProdutosSelected] = produtosSelectedMap[tipoProposta] || produtosSelectedMap.comodato
+const [selectedInsumosEquipProdutos, setSelectedInsumosEquipProdutos] = useState({})
+const [selectedInsumosEquipEquip, setSelectedInsumosEquipEquip] = useState({})
+const produtosSelectedMap = {
+  comodato: [selected, setSelected],
+  insumos: [selectedInsumos, setSelectedInsumos],
+  insumos_equipamentos: [selectedInsumosEquipProdutos, setSelectedInsumosEquipProdutos],
+}
+const [produtosSelected, setProdutosSelected] = produtosSelectedMap[tipoProposta] || [{}, () => {}]
+const equipSelectedMap = {
+  equipamentos: [selectedEquip, setSelectedEquip],
+  insumos_equipamentos: [selectedInsumosEquipEquip, setSelectedInsumosEquipEquip],
+}
+const [equipSelected, setEquipSelected] = equipSelectedMap[tipoProposta] || [{}, () => {}]
 const [customComodato, setCustomComodato] = useState([])
 const [customEquip, setCustomEquip] = useState([])
 const [customInsumos, setCustomInsumos] = useState([])
-const customMap = { comodato: [customComodato, setCustomComodato], equipamentos: [customEquip, setCustomEquip], insumos: [customInsumos, setCustomInsumos] }
+const [customInsumosEquip, setCustomInsumosEquip] = useState([])
+const customMap = {
+  comodato: [customComodato, setCustomComodato],
+  equipamentos: [customEquip, setCustomEquip],
+  insumos: [customInsumos, setCustomInsumos],
+  insumos_equipamentos: [customInsumosEquip, setCustomInsumosEquip],
+}
 const [customProducts, setCustomProducts] = customMap[tipoProposta]
+
+function toggleEquip(p) {
+  const s = { ...equipSelected }
+  if (s[p.id]) delete s[p.id]
+  else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: 'Unidade' }
+  setEquipSelected(s)
+}
 
 function addCustomProduct() {
 setCustomProducts(c => [...c, { id: 'custom-' + Date.now(), name: '', unit: tipoProposta === 'equipamentos' ? 'Unidade' : 'Caixa', qty: 1, price: 0 }])
@@ -67,7 +97,7 @@ useEffect(() => {
   })
 }, [])
 
-const items = [...Object.values(tipoProposta === 'equipamentos' ? selectedEquip : produtosSelected), ...customProducts]
+const items = [...Object.values(produtosSelected), ...Object.values(equipSelected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
 async function buscarCNPJ(cnpj) {
@@ -137,7 +167,7 @@ const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
-tipo: tipoProposta === 'equipamentos' ? 'equipamentos' : tipoProposta === 'insumos' ? 'insumos' : cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
+tipo: tipoProposta === 'equipamentos' ? 'equipamentos' : tipoProposta === 'insumos' ? 'insumos' : tipoProposta === 'insumos_equipamentos' ? 'insumos+equipamentos' : cliente.incluirContrato ? 'proposta+contrato' : 'proposta',
 vendedora: user.name,
 email: user.email,
 cliente_nome: cliente.nome || cliente.empresa,
@@ -170,7 +200,7 @@ return (
 )}
 
 <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' }}>
-{[['comodato','🤝 Proposta Comodato'],['equipamentos','📦 Venda de Equipamentos'],['insumos','🧴 Venda de Insumos']].map(([v,l]) => (
+{[['comodato','🤝 Proposta Comodato'],['equipamentos','📦 Venda de Equipamentos'],['insumos','🧴 Venda de Insumos'],['insumos_equipamentos','🧴📦 Insumos + Equipamentos']].map(([v,l]) => (
 <button key={v} onClick={() => mudarTipo(v)}
 style={{ padding: '8px 18px', borderRadius: 8, border: '1.5px solid ' + (tipoProposta === v ? '#1A3A6B' : '#D0D8EC'), background: tipoProposta === v ? '#1A3A6B' : '#fff', color: tipoProposta === v ? '#fff' : '#555', fontSize: 13, fontWeight: tipoProposta === v ? 700 : 400, cursor: 'pointer' }}>
 {l}
@@ -257,8 +287,11 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
 
 {tab === 'produtos' && (
 <div>
-{tipoProposta === 'equipamentos' ? (
+{(tipoProposta === 'equipamentos' || tipoProposta === 'insumos_equipamentos') && (
 <div>
+      {tipoProposta === 'insumos_equipamentos' && (
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1A3A6B', marginBottom: 10 }}>🧰 Equipamentos</div>
+      )}
       {carregandoEquipamentos && (
         <div style={{ color: '#888', fontSize: 13, padding: '0.5rem 0 1rem' }}>Carregando equipamentos...</div>
       )}
@@ -269,14 +302,9 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 8 }}>
             {equipamentos.filter(p => p.categoria === linha).map(p => {
-              const sel = selectedEquip[p.id]
+              const sel = equipSelected[p.id]
               return (
-                <div key={p.id} onClick={() => {
-                  const s = { ...selectedEquip }
-                  if (s[p.id]) delete s[p.id]
-                  else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: 'Unidade' }
-                  setSelectedEquip(s)
-                }}
+                <div key={p.id} onClick={() => toggleEquip(p)}
                   style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                     <div>
@@ -290,13 +318,13 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
                         <input type="number" min="1" value={sel.qty}
-                          onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], qty: parseInt(e.target.value) || 1 } }))}
+                          onChange={e => setEquipSelected(s => ({ ...s, [p.id]: { ...s[p.id], qty: parseInt(e.target.value) || 1 } }))}
                           style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 11, color: '#666' }}>R$</span>
                         <input type="number" min="0" step="0.01" value={sel.price}
-                          onChange={e => setSelectedEquip(s => ({ ...s, [p.id]: { ...s[p.id], price: parseFloat(e.target.value) || 0 } }))}
+                          onChange={e => setEquipSelected(s => ({ ...s, [p.id]: { ...s[p.id], price: parseFloat(e.target.value) || 0 } }))}
                           style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
                         <span style={{ fontSize: 11, color: '#666' }}>/ un.</span>
                       </div>
@@ -308,35 +336,14 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
           </div>
         </div>
       ))}
-      <div style={{ marginTop: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>Equipamento não está na lista?</span>
-          <button onClick={addCustomProduct} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #1A3A6B', background: '#fff', color: '#1A3A6B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ Adicionar</button>
-        </div>
-        {customProducts.map(cp => (
-          <div key={cp.id} style={{ border: '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', marginBottom: 8, background: '#FFFBF0' }}>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-              <input placeholder="Nome do equipamento" value={cp.name} onChange={e => updateCustomProduct(cp.id, 'name', e.target.value)}
-                style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 13 }} />
-              <button onClick={() => removeCustomProduct(cp.id)} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: '#FEEEEE', color: '#C0392B', fontSize: 12, cursor: 'pointer' }}>Remover</button>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
-              <input type="number" min="1" value={cp.qty} onChange={e => updateCustomProduct(cp.id, 'qty', e.target.value)}
-                style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-              <span style={{ fontSize: 11, color: '#666', marginLeft: 8 }}>R$</span>
-              <input type="number" min="0" step="0.01" value={cp.price} onChange={e => updateCustomProduct(cp.id, 'price', e.target.value)}
-                style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-              <select value={cp.unit} onChange={e => updateCustomProduct(cp.id, 'unit', e.target.value)}
-                style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '3px 6px', border: 'none' }}>
-                {['Unidade', 'Caixa', 'Pacote', 'Fardo'].map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
-) : carregandoProdutos ? (
+)}
+{tipoProposta !== 'equipamentos' && (
+<div>
+{tipoProposta === 'insumos_equipamentos' && (
+  <div style={{ fontSize: 13, fontWeight: 700, color: '#1A3A6B', margin: '1.5rem 0 10px' }}>🧴 Insumos</div>
+)}
+{carregandoProdutos ? (
 <div style={{ color: '#888', fontSize: 13, padding: '0.5rem 0 1rem' }}>Carregando produtos...</div>
 ) : Array.from(new Set(produtosCatalogo.map(p => p.categoria))).map(cat => {
 const prods = produtosCatalogo.filter(p => p.categoria === cat)
@@ -389,17 +396,20 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 </div>
 )
 })}
+</div>
+)}
 
-{tipoProposta !== 'equipamentos' && (
 <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-<span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>Produto não está na lista?</span>
-<button onClick={addCustomProduct} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #1A3A6B', background: '#fff', color: '#1A3A6B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ Adicionar produto</button>
+<span style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B' }}>
+{tipoProposta === 'equipamentos' ? 'Equipamento não está na lista?' : tipoProposta === 'insumos_equipamentos' ? 'Produto ou equipamento não está na lista?' : 'Produto não está na lista?'}
+</span>
+<button onClick={addCustomProduct} style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid #1A3A6B', background: '#fff', color: '#1A3A6B', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>+ Adicionar</button>
 </div>
 {customProducts.map(cp => (
 <div key={cp.id} style={{ border: '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', marginBottom: 8, background: '#FFFBF0' }}>
 <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-<input placeholder="Descrição do produto" value={cp.name} onChange={e => updateCustomProduct(cp.id, 'name', e.target.value)}
+<input placeholder="Descrição do item" value={cp.name} onChange={e => updateCustomProduct(cp.id, 'name', e.target.value)}
 style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 13 }} />
 <button onClick={() => removeCustomProduct(cp.id)} style={{ padding: '6px 10px', borderRadius: 6, border: 'none', background: '#FEEEEE', color: '#C0392B', fontSize: 12, cursor: 'pointer' }}>Remover</button>
 </div>
@@ -407,19 +417,18 @@ style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '0.5px solid #D0
 <span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
 <input type="number" min="1" value={cp.qty} onChange={e => updateCustomProduct(cp.id, 'qty', e.target.value)}
 style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
-<select value={cp.unit} onChange={e => updateCustomProduct(cp.id, 'unit', e.target.value)}
-style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '3px 6px', border: 'none' }}>
-{['Caixa', 'Pacote', 'Fardo', 'Unidade'].map(u => <option key={u} value={u}>{u}</option>)}
-</select>
 <span style={{ fontSize: 11, color: '#666', marginLeft: 8 }}>R$</span>
 <input type="number" min="0" step="0.01" value={cp.price} onChange={e => updateCustomProduct(cp.id, 'price', e.target.value)}
 style={{ width: 80, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+<select value={cp.unit} onChange={e => updateCustomProduct(cp.id, 'unit', e.target.value)}
+style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '3px 6px', border: 'none' }}>
+{['Unidade', 'Caixa', 'Pacote', 'Fardo'].map(u => <option key={u} value={u}>{u}</option>)}
+</select>
 <span style={{ fontSize: 11, color: '#666' }}>/ {cp.unit}</span>
 </div>
 </div>
 ))}
 </div>
-)}
 <div style={{ display: 'flex', gap: 8 }}>
 <button onClick={() => setTab(tipoProposta === 'comodato' ? 'comodato' : 'cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
 <button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
