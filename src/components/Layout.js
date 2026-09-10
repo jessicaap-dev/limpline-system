@@ -12,6 +12,7 @@ export default function Layout({ children, title }) {
     { path: '/contrato', label: '📋 Contrato', roles: ['admin', 'vendedora'] },
     { path: '/painel', label: '📊 Painel', roles: ['admin'] },
     { path: '/catalogo', label: '🗂️ Catálogo', roles: ['admin'] },
+    { path: '/estoque', label: '📦 Estoque', roles: ['admin', 'vendedora'] },
   ].filter(item => item.roles.includes(user?.role))
 
   function handleLogout() {
