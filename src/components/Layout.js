@@ -7,13 +7,19 @@ export default function Layout({ children, title }) {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Romilda (id 2) e Juliana (id 3) não têm acesso à tela de Estoque,
+  // mesmo sendo vendedoras — restrição por pessoa, não por perfil.
+  const SEM_ACESSO_ESTOQUE = [2, 3]
+
   const navItems = [
     { path: '/proposta', label: '📄 Proposta', roles: ['admin', 'vendedora'] },
     { path: '/contrato', label: '📋 Contrato', roles: ['admin', 'vendedora'] },
     { path: '/painel', label: '📊 Painel', roles: ['admin'] },
     { path: '/catalogo', label: '🗂️ Catálogo', roles: ['admin'] },
     { path: '/estoque', label: '📦 Estoque', roles: ['admin', 'vendedora'] },
-  ].filter(item => item.roles.includes(user?.role))
+  ]
+    .filter(item => item.roles.includes(user?.role))
+    .filter(item => item.path !== '/estoque' || !SEM_ACESSO_ESTOQUE.includes(user?.id))
 
   function handleLogout() {
     logout()
