@@ -21,3 +21,30 @@ create table if not exists public.estoque_equipamentos (
 alter table public.estoque_equipamentos disable row level security;
 
 create index if not exists estoque_equipamentos_equipamento_idx on public.estoque_equipamentos (equipamento);
+
+-- Carga inicial (estoque_equipamentos_atual.csv, 20 combinações, 531
+-- unidades no total). O CSV não separa "nº de caixas" de "unidades por
+-- caixa" — só dá o total já em unidades pra cada origem (Avulso/Caixa
+-- fechada) — então unidades_por_caixa entra como 1 e qtd_caixas carrega
+-- esse total direto; dá pra ajustar depois se quiser detalhar por caixa.
+insert into public.estoque_equipamentos (equipamento, cor, marca, qtd_avulsa, qtd_caixas, unidades_por_caixa) values
+  ('Saboneteira Espuma', 'Preta', 'Fortcom', 22, 6, 1),
+  ('Saboneteira Espuma', 'Velada', 'Fortcom', 12, 57, 1),
+  ('Saboneteira Líquida', 'Branca', 'Fortcom', 2, 0, 1),
+  ('Saboneteira Líquida', 'Preta', 'Fortcom', 33, 0, 1),
+  ('Saboneteira Líquida', 'Velada', 'Fortcom', 2, 6, 1),
+  ('Saboneteira Mini Líquida', 'Velada', 'Fortcom', 11, 0, 1),
+  ('Saboneteira Mini Espuma', 'Velada', 'Fortcom', 2, 0, 1),
+  ('Interfolha', 'Preto', 'Fortcom', 12, 12, 1),
+  ('Interfolha', 'Velado', 'Fortcom', 8, 18, 1),
+  ('Higiênico Rolão', 'Preto', 'Fortcom', 15, 30, 1),
+  ('Higiênico Rolão', 'Velado', 'Fortcom', 12, 48, 1),
+  ('Porta Copos Café', 'Preto', 'Fortcom', 0, 14, 1),
+  ('Porta Copos Café', 'Branco', 'Fortcom', 0, 15, 1),
+  ('Fio Dental', 'Branco', 'Fortcom', 0, 18, 1),
+  ('Enxaguante', 'Branco', 'Fortcom', 0, 36, 1),
+  ('Reservatório Espuma', 'Preta', 'Fortcom', 0, 36, 1),
+  ('Cai-Cai', 'Preto', 'Fortcom', 0, 12, 1),
+  ('Cai-Cai', 'Velado', 'Fortcom', 0, 18, 1),
+  ('Auto Corte', 'Velado', 'Fortcom', 0, 51, 1),
+  ('Auto Corte', 'Preto', 'Fortcom', 0, 23, 1);
