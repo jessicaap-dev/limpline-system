@@ -13,6 +13,8 @@ const labelStyle = { fontSize: 11, color: '#666', display: 'block', marginBottom
 export default function Estoque() {
   const { user } = useAuth()
   const ehJessica = user?.role === 'admin'
+  // Marcos (id 4) também pode editar o custo unitário, além da Jéssica.
+  const podeEditarCusto = ehJessica || user?.id === 4
   const [itens, setItens] = useState([])
   const [loading, setLoading] = useState(true)
   const [novo, setNovo] = useState({ equipamento: '', cor: '', marca: 'Fortcom', qtd_avulsa: '', qtd_caixas: '', unidades_por_caixa: '1', custo_unitario: '' })
@@ -39,7 +41,7 @@ export default function Estoque() {
         qtd_avulsa: parseInt(novo.qtd_avulsa, 10) || 0,
         qtd_caixas: parseInt(novo.qtd_caixas, 10) || 0,
         unidades_por_caixa: parseInt(novo.unidades_por_caixa, 10) || 1,
-        custo_unitario: ehJessica && novo.custo_unitario !== '' ? parseFloat(novo.custo_unitario) : null,
+        custo_unitario: podeEditarCusto && novo.custo_unitario !== '' ? parseFloat(novo.custo_unitario) : null,
       })
       setNovo({ equipamento: '', cor: '', marca: novo.marca, qtd_avulsa: '', qtd_caixas: '', unidades_por_caixa: '1', custo_unitario: '' })
       await carregar()
@@ -66,10 +68,10 @@ export default function Estoque() {
         qtd_caixas: parseInt(edit.qtd_caixas, 10) || 0,
         unidades_por_caixa: parseInt(edit.unidades_por_caixa, 10) || 1,
       }
-      // Custo unitário só é gravado se for a Jéssica editando — outros
-      // perfis podem estar com o campo aberto (leitura), mas o valor
+      // Custo unitário só é gravado se for Jéssica ou Marcos editando —
+      // outros perfis podem estar com o campo aberto (leitura), mas o valor
       // original é preservado mesmo que o estado local tenha mudado.
-      fields.custo_unitario = ehJessica ? (edit.custo_unitario === '' ? null : parseFloat(edit.custo_unitario)) : custoOriginal
+      fields.custo_unitario = podeEditarCusto ? (edit.custo_unitario === '' ? null : parseFloat(edit.custo_unitario)) : custoOriginal
       await updateEstoqueItem(id, fields)
       setEditId(null)
       await carregar()
@@ -95,7 +97,7 @@ export default function Estoque() {
         <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem' }}>
           <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 4 }}>💰 Valor total investido em estoque</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: '#1A3A6B' }}>{fmtBRL(valorTotalInvestido)}</div>
-          {!ehJessica && <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>Custo unitário só pode ser alterado pela Jéssica.</div>}
+          {!podeEditarCusto && <div style={{ fontSize: 11, color: '#999', marginTop: 4 }}>Custo unitário só pode ser alterado pela Jéssica ou Marcos.</div>}
         </div>
         <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem' }}>
           <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 4 }}>📦 Total de unidades em estoque</div>
@@ -106,7 +108,7 @@ export default function Estoque() {
 
       <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B', marginBottom: 10 }}>+ Adicionar item ao estoque</div>
-        <div style={{ display: 'grid', gridTemplateColumns: ehJessica ? '1.6fr 1fr 0.9fr 0.7fr 0.7fr 0.8fr 0.9fr auto' : '1.6fr 1fr 0.9fr 0.7fr 0.7fr 0.8fr auto', gap: 8, alignItems: 'end' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: podeEditarCusto ? '1.6fr 1fr 0.9fr 0.7fr 0.7fr 0.8fr 0.9fr auto' : '1.6fr 1fr 0.9fr 0.7fr 0.7fr 0.8fr auto', gap: 8, alignItems: 'end' }}>
           <div>
             <label style={labelStyle}>Equipamento</label>
             <input value={novo.equipamento} onChange={e => setNovo(n => ({ ...n, equipamento: e.target.value }))} list="equipamentos-sugeridos" style={inputStyle} />
@@ -133,7 +135,7 @@ export default function Estoque() {
             <label style={labelStyle}>Unid./caixa</label>
             <input type="number" min="1" value={novo.unidades_por_caixa} onChange={e => setNovo(n => ({ ...n, unidades_por_caixa: e.target.value }))} style={inputStyle} />
           </div>
-          {ehJessica && (
+          {podeEditarCusto && (
             <div>
               <label style={labelStyle}>Custo unit. (R$)</label>
               <input type="number" min="0" step="0.01" value={novo.custo_unitario} onChange={e => setNovo(n => ({ ...n, custo_unitario: e.target.value }))} style={inputStyle} />
@@ -171,7 +173,7 @@ export default function Estoque() {
                       <td style={{ padding: '6px 10px' }}><input type="number" min="1" value={edit.unidades_por_caixa} onChange={e => setEdit(x => ({ ...x, unidades_por_caixa: e.target.value }))} style={{ ...inputStyle, width: 70 }} /></td>
                       <td style={{ padding: '6px 10px', color: '#888' }}>{totalUnidades({ qtd_avulsa: parseInt(edit.qtd_avulsa, 10) || 0, qtd_caixas: parseInt(edit.qtd_caixas, 10) || 0, unidades_por_caixa: parseInt(edit.unidades_por_caixa, 10) || 1 })}</td>
                       <td style={{ padding: '6px 10px' }}>
-                        {ehJessica
+                        {podeEditarCusto
                           ? <input type="number" min="0" step="0.01" value={edit.custo_unitario} onChange={e => setEdit(x => ({ ...x, custo_unitario: e.target.value }))} style={{ ...inputStyle, width: 80 }} />
                           : <span style={{ color: '#888' }}>{item.custo_unitario ? fmtBRL(item.custo_unitario) : '—'}</span>}
                       </td>
