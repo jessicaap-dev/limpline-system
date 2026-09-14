@@ -4,6 +4,7 @@ export async function fetchEstoque() {
   const { data, error } = await supabase
     .from('estoque_equipamentos')
     .select('*')
+    .order('marca', { ascending: true })
     .order('equipamento', { ascending: true })
     .order('cor', { ascending: true })
   if (error) { console.error('Erro ao buscar estoque:', error); return [] }
@@ -34,4 +35,26 @@ export function totalUnidades(item) {
 export function valorInvestido(item) {
   if (!item.custo_unitario) return 0
   return totalUnidades(item) * item.custo_unitario
+}
+
+// Agrupa os itens por marca (mantendo a ordem em que aparecem — já vem
+// ordenado por marca/equipamento/cor do fetchEstoque), pra render em seções
+// e permitir subtotal de unidades/valor investido por marca na tela.
+export function agruparPorMarca(itens) {
+  const grupos = []
+  const porNome = {}
+  for (const item of itens) {
+    const marca = item.marca || 'Sem marca'
+    if (!porNome[marca]) {
+      porNome[marca] = { marca, itens: [] }
+      grupos.push(porNome[marca])
+    }
+    porNome[marca].itens.push(item)
+  }
+  return grupos.map(g => ({
+    ...g,
+    totalUnidades: g.itens.reduce((s, i) => s + totalUnidades(i), 0),
+    valorInvestido: g.itens.reduce((s, i) => s + valorInvestido(i), 0),
+    faltaCusto: g.itens.some(i => !i.custo_unitario),
+  }))
 }
