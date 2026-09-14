@@ -15,6 +15,10 @@ export default function Estoque() {
   const ehJessica = user?.role === 'admin'
   // Marcos (id 4) também pode editar o custo unitário, além da Jéssica.
   const podeEditarCusto = ehJessica || user?.id === 4
+  // Romilda (id 2) e Juliana (id 3) enxergam a tela e as quantidades
+  // normalmente — só não podem ver nem custo unitário nem valor investido
+  // (nem como leitura, diferente das outras vendedoras que veem mas não editam).
+  const escondeValores = user?.id === 2 || user?.id === 3
   const [itens, setItens] = useState([])
   const [loading, setLoading] = useState(true)
   const [novo, setNovo] = useState({ equipamento: '', cor: '', marca: 'Fortcom', qtd_avulsa: '', qtd_caixas: '', unidades_por_caixa: '1', custo_unitario: '' })
@@ -97,25 +101,46 @@ export default function Estoque() {
     <Layout title="📦 Estoque de Equipamentos">
       <datalist id="marcas-existentes">{marcasExistentes.map(m => <option key={m} value={m} />)}</datalist>
 
-      {/* Valor investido separado por marca — mais marcas só criam mais cards aqui. */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>💰 Valor investido por marca</div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {grupos.map(g => (
-            <div key={g.marca} style={{ background: '#F4F6FB', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#1A3A6B', marginBottom: 2 }}>{g.marca}</div>
-              <div style={{ fontSize: 19, fontWeight: 700, color: '#1A3A6B' }}>{fmtBRL(g.valorInvestido)}</div>
-              <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{g.totalUnidades} unid. · {g.itens.length} item(ns){g.faltaCusto ? ' · custo incompleto' : ''}</div>
+      {/* Valor investido separado por marca — mais marcas só criam mais cards aqui.
+          Romilda/Juliana não veem essa seção (não podem ver valores, só quantidades). */}
+      {escondeValores ? (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>📦 Unidades por marca</div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {grupos.map(g => (
+              <div key={g.marca} style={{ background: '#F4F6FB', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1A3A6B', marginBottom: 2 }}>{g.marca}</div>
+                <div style={{ fontSize: 19, fontWeight: 700, color: '#1A3A6B' }}>{g.totalUnidades} unid.</div>
+                <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{g.itens.length} item(ns)</div>
+              </div>
+            ))}
+            <div style={{ background: '#1A3A6B', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#B5D4F4', marginBottom: 2 }}>Total geral</div>
+              <div style={{ fontSize: 19, fontWeight: 700, color: '#fff' }}>{totalGeralUnidades} unid.</div>
+              <div style={{ fontSize: 11, color: '#B5D4F4', marginTop: 2 }}>{itens.length} item(ns)</div>
             </div>
-          ))}
-          <div style={{ background: '#1A3A6B', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#B5D4F4', marginBottom: 2 }}>Total geral</div>
-            <div style={{ fontSize: 19, fontWeight: 700, color: '#fff' }}>{fmtBRL(valorTotalInvestido)}</div>
-            <div style={{ fontSize: 11, color: '#B5D4F4', marginTop: 2 }}>{totalGeralUnidades} unid. · {itens.length} item(ns)</div>
           </div>
         </div>
-        {!podeEditarCusto && <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>Custo unitário só pode ser alterado pela Jéssica ou Marcos.</div>}
-      </div>
+      ) : (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: .5, marginBottom: 8 }}>💰 Valor investido por marca</div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {grupos.map(g => (
+              <div key={g.marca} style={{ background: '#F4F6FB', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1A3A6B', marginBottom: 2 }}>{g.marca}</div>
+                <div style={{ fontSize: 19, fontWeight: 700, color: '#1A3A6B' }}>{fmtBRL(g.valorInvestido)}</div>
+                <div style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{g.totalUnidades} unid. · {g.itens.length} item(ns){g.faltaCusto ? ' · custo incompleto' : ''}</div>
+              </div>
+            ))}
+            <div style={{ background: '#1A3A6B', borderRadius: 12, padding: '0.85rem 1.1rem', minWidth: 150 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#B5D4F4', marginBottom: 2 }}>Total geral</div>
+              <div style={{ fontSize: 19, fontWeight: 700, color: '#fff' }}>{fmtBRL(valorTotalInvestido)}</div>
+              <div style={{ fontSize: 11, color: '#B5D4F4', marginTop: 2 }}>{totalGeralUnidades} unid. · {itens.length} item(ns)</div>
+            </div>
+          </div>
+          {!podeEditarCusto && <div style={{ fontSize: 11, color: '#999', marginTop: 8 }}>Custo unitário só pode ser alterado pela Jéssica ou Marcos.</div>}
+        </div>
+      )}
 
       <div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1.5rem' }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B', marginBottom: 10 }}>+ Adicionar item ao estoque</div>
@@ -168,13 +193,13 @@ export default function Estoque() {
           <div key={g.marca} style={{ marginBottom: '1.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8, paddingBottom: 6, borderBottom: '2px solid #1A3A6B' }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1A3A6B' }}>{g.marca}</div>
-              <div style={{ fontSize: 12, color: '#888' }}>{g.itens.length} item(ns) · {g.totalUnidades} unidades · {fmtBRL(g.valorInvestido)}</div>
+              <div style={{ fontSize: 12, color: '#888' }}>{g.itens.length} item(ns) · {g.totalUnidades} unidades{!escondeValores ? ` · ${fmtBRL(g.valorInvestido)}` : ''}</div>
             </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: '1.5px solid #E8EDF5' }}>
-                    {['Equipamento', 'Cor', 'Avulsas', 'Em caixa', 'Total', 'Custo unit.', 'Investido', ''].map(h => (
+                    {(escondeValores ? ['Equipamento', 'Cor', 'Avulsas', 'Em caixa', 'Total', ''] : ['Equipamento', 'Cor', 'Avulsas', 'Em caixa', 'Total', 'Custo unit.', 'Investido', '']).map(h => (
                       <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontSize: 10.5, textTransform: 'uppercase', letterSpacing: .6, color: '#888', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
                     ))}
                   </tr>
@@ -193,12 +218,16 @@ export default function Estoque() {
                             <input type="number" min="1" value={edit.unidades_por_caixa} onChange={e => setEdit(x => ({ ...x, unidades_por_caixa: e.target.value }))} style={{ ...inputStyle, width: 50 }} title="Unidades por caixa" />
                           </td>
                           <td style={{ padding: '6px 10px', color: '#888' }}>{totalUnidades({ qtd_avulsa: parseInt(edit.qtd_avulsa, 10) || 0, qtd_caixas: parseInt(edit.qtd_caixas, 10) || 0, unidades_por_caixa: parseInt(edit.unidades_por_caixa, 10) || 1 })}</td>
-                          <td style={{ padding: '6px 10px' }}>
-                            {podeEditarCusto
-                              ? <input type="number" min="0" step="0.01" value={edit.custo_unitario} onChange={e => setEdit(x => ({ ...x, custo_unitario: e.target.value }))} style={{ ...inputStyle, width: 80 }} />
-                              : <span style={{ color: '#888' }}>{item.custo_unitario ? fmtBRL(item.custo_unitario) : '—'}</span>}
-                          </td>
-                          <td style={{ padding: '6px 10px', color: '#888' }}>—</td>
+                          {!escondeValores && (
+                            <>
+                              <td style={{ padding: '6px 10px' }}>
+                                {podeEditarCusto
+                                  ? <input type="number" min="0" step="0.01" value={edit.custo_unitario} onChange={e => setEdit(x => ({ ...x, custo_unitario: e.target.value }))} style={{ ...inputStyle, width: 80 }} />
+                                  : <span style={{ color: '#888' }}>{item.custo_unitario ? fmtBRL(item.custo_unitario) : '—'}</span>}
+                              </td>
+                              <td style={{ padding: '6px 10px', color: '#888' }}>—</td>
+                            </>
+                          )}
                           <td style={{ padding: '6px 10px', display: 'flex', gap: 6 }}>
                             <button onClick={() => salvarEdicao(item.id, item.custo_unitario)} style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 12, cursor: 'pointer' }}>Salvar</button>
                             <button onClick={() => setEditId(null)} style={{ padding: '5px 10px', borderRadius: 6, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 12, cursor: 'pointer' }}>Cancelar</button>
@@ -211,8 +240,12 @@ export default function Estoque() {
                           <td style={{ padding: '8px 10px', color: '#555' }}>{item.qtd_avulsa || '—'}</td>
                           <td style={{ padding: '8px 10px', color: '#555' }}>{item.qtd_caixas > 0 ? `${item.qtd_caixas} cx × ${item.unidades_por_caixa}` : '—'}</td>
                           <td style={{ padding: '8px 10px', fontWeight: 700, color: '#1A3A6B' }}>{totalUnidades(item)}</td>
-                          <td style={{ padding: '8px 10px' }}>{item.custo_unitario ? fmtBRL(item.custo_unitario) : <span style={{ color: '#C0392B', fontWeight: 600 }}>A preencher</span>}</td>
-                          <td style={{ padding: '8px 10px', color: '#333' }}>{item.custo_unitario ? fmtBRL(valorInvestido(item)) : '—'}</td>
+                          {!escondeValores && (
+                            <>
+                              <td style={{ padding: '8px 10px' }}>{item.custo_unitario ? fmtBRL(item.custo_unitario) : <span style={{ color: '#C0392B', fontWeight: 600 }}>A preencher</span>}</td>
+                              <td style={{ padding: '8px 10px', color: '#333' }}>{item.custo_unitario ? fmtBRL(valorInvestido(item)) : '—'}</td>
+                            </>
+                          )}
                           <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
                             <button onClick={() => iniciarEdicao(item)} style={{ padding: '5px 10px', borderRadius: 6, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 12, cursor: 'pointer', marginRight: 6 }}>Editar</button>
                             {ehJessica && <button onClick={() => remover(item)} style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: '#FEEEEE', color: '#C0392B', fontSize: 12, cursor: 'pointer' }}>Remover</button>}
@@ -231,7 +264,7 @@ export default function Estoque() {
       {itens.length > 0 && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 20, padding: '10px 4px', borderTop: '1.5px solid #E8EDF5', fontSize: 12, fontWeight: 700, color: '#1A3A6B' }}>
           <span>Total geral: {totalGeralUnidades} unidades</span>
-          <span>{fmtBRL(valorTotalInvestido)}</span>
+          {!escondeValores && <span>{fmtBRL(valorTotalInvestido)}</span>}
         </div>
       )}
     </Layout>
