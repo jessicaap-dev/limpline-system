@@ -18,7 +18,7 @@ function mudarTipo(novoTipo) {
 function clienteVazio(incluirContrato) {
   return {
     nome: '', empresa: '', cnpj: '', endereco: '', validade: '15 dias', condicaoPagamento: '',
-    data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato
+    data: new Date().toLocaleDateString('pt-BR'), obs: '', incluirContrato, incluirPedidoMinimo: false
   }
 }
 const [clienteComodato, setClienteComodato] = useState(clienteVazio(true))
@@ -60,6 +60,21 @@ const customMap = {
   insumos_equipamentos: [customInsumosEquip, setCustomInsumosEquip],
 }
 const [customProducts, setCustomProducts] = customMap[tipoProposta]
+
+const [selectedPedidoMinimo, setSelectedPedidoMinimo] = useState({})
+const pedidoMinimoItens = Object.values(selectedPedidoMinimo)
+const pedidoMinimoTotal = pedidoMinimoItens.reduce((s, it) => s + it.qty * (it.price || 0), 0)
+
+function togglePedidoMinimo(p) {
+  const s = { ...selectedPedidoMinimo }
+  if (s[p.id]) delete s[p.id]
+  else s[p.id] = { ...p, qty: 1, price: p.precoDefault || 0, unit: p.units[0] }
+  setSelectedPedidoMinimo(s)
+}
+
+function updatePedidoMinimoItem(id, field, val) {
+  setSelectedPedidoMinimo(s => ({ ...s, [id]: { ...s[id], [field]: field === 'qty' ? (parseInt(val) || 1) : (parseFloat(val) || 0) } }))
+}
 
 function toggleEquip(p) {
   const s = { ...equipSelected }
@@ -158,12 +173,27 @@ function removeComodato(id) {
 setComodato(c => c.filter(x => x.id !== id))
 }
 
+const STEP_LABELS = { cliente: 'Cliente', comodato: 'Comodato', produtos: 'Produtos', pedidominimo: 'Pedido Mínimo', resumo: 'Gerar PDF' }
+const steps = tipoProposta === 'comodato'
+  ? ['cliente', 'comodato', 'produtos', ...(cliente.incluirContrato && cliente.incluirPedidoMinimo ? ['pedidominimo'] : []), 'resumo']
+  : ['cliente', 'produtos', 'resumo']
+
+function irProximo() {
+  const idx = steps.indexOf(tab)
+  if (idx > -1 && idx < steps.length - 1) setTab(steps[idx + 1])
+}
+function irAnterior() {
+  const idx = steps.indexOf(tab)
+  if (idx > 0) setTab(steps[idx - 1])
+}
+
 async function handleGerar() {
 if (!cliente.empresa) { alert('Preencha o nome da empresa.'); return }
 setLoading(true)
 try {
 const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
-  const data = { ...cliente, comodato: comodatoFinal, produtos: items, vendedora: user.name, genero: user.genero, showTotal, tipoProposta }
+  const usaPedidoMinimo = tipoProposta === 'comodato' && cliente.incluirContrato && cliente.incluirPedidoMinimo
+  const data = { ...cliente, comodato: comodatoFinal, produtos: items, vendedora: user.name, genero: user.genero, showTotal, tipoProposta, incluirPedidoMinimo: usaPedidoMinimo, pedidoMinimoItens: usaPedidoMinimo ? pedidoMinimoItens : [] }
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
@@ -209,10 +239,10 @@ style={{ padding: '8px 18px', borderRadius: 8, border: '1.5px solid ' + (tipoPro
 </div>
 
 <div style={{ display: 'flex', gap: 8, marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-{(tipoProposta === 'comodato' ? ['cliente','comodato','produtos','resumo'] : ['cliente','produtos','resumo']).map((t, idx) => (
+{steps.map((t, idx) => (
 <button key={t} onClick={() => setTab(t)}
 style={{ padding: '8px 18px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: tab === t ? '#1A3A6B' : '#fff', color: tab === t ? '#fff' : '#555', fontSize: 13, fontWeight: tab === t ? 600 : 400, cursor: 'pointer' }}>
-{t === 'cliente' ? '1. Cliente' : t === 'comodato' ? '2. Comodato' : t === 'produtos' ? (tipoProposta === 'comodato' ? '3. Produtos' : '2. Produtos') : (tipoProposta === 'comodato' ? '4. Gerar PDF' : '3. Gerar PDF')}
+{(idx + 1) + '. ' + STEP_LABELS[t]}
 </button>
 ))}
 </div>
@@ -251,11 +281,17 @@ style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px sol
     Incluir minuta do contrato no PDF
   </label>
 )}
+{tipoProposta === 'comodato' && cliente.incluirContrato && (
+  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
+    <input type="checkbox" checked={cliente.incluirPedidoMinimo} onChange={e => setCliente(c => ({ ...c, incluirPedidoMinimo: e.target.checked }))} />
+    Incluir cláusula de Pedido Mínimo Mensal
+  </label>
+)}
 <label style={{ fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
 <input type="checkbox" checked={showTotal} onChange={e => setShowTotal(e.target.checked)} />
 Exibir valor total no PDF
 </label>
-<button onClick={() => setTab(tipoProposta === 'comodato' ? 'comodato' : 'produtos')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start' }}>
+<button onClick={irProximo} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', alignSelf: 'flex-start' }}>
 Próximo →
 </button>
 </div>
@@ -279,8 +315,8 @@ style={{ width: 60, padding: '6px 8px', borderRadius: 8, border: '0.5px solid #D
 + Adicionar suporte
 </button>
 <div style={{ display: 'flex', gap: 8 }}>
-<button onClick={() => setTab('cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
-<button onClick={() => setTab('produtos')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Próximo →</button>
+<button onClick={irAnterior} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
+<button onClick={irProximo} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Próximo →</button>
 </div>
 </div>
 )}
@@ -430,8 +466,77 @@ style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb',
 ))}
 </div>
 <div style={{ display: 'flex', gap: 8 }}>
-<button onClick={() => setTab(tipoProposta === 'comodato' ? 'comodato' : 'cliente')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
-<button onClick={() => setTab('resumo')} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
+<button onClick={irAnterior} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
+<button onClick={irProximo} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>{steps[steps.indexOf('produtos') + 1] === 'pedidominimo' ? 'Próximo →' : 'Ver resumo →'}</button>
+</div>
+</div>
+)}
+
+{tab === 'pedidominimo' && tipoProposta === 'comodato' && (
+<div>
+<p style={{ fontSize: 13, color: '#666', marginBottom: 4 }}>Selecione os produtos e quantidades que vão compor o pedido mínimo mensal obrigatório deste cliente:</p>
+<p style={{ fontSize: 12, color: '#888', marginBottom: '1rem' }}>Essa seleção é só para a cláusula do contrato — não entra na tabela de "Valores e sugestão do pedido" da proposta.</p>
+{carregandoProdutos ? (
+<div style={{ color: '#888', fontSize: 13, padding: '0.5rem 0 1rem' }}>Carregando produtos...</div>
+) : Array.from(new Set(produtosCatalogo.map(p => p.categoria))).map(cat => {
+const prods = produtosCatalogo.filter(p => p.categoria === cat)
+if (prods.length === 0) return null
+return (
+<div key={cat} style={{ marginBottom: '1.5rem' }}>
+<div style={{ fontSize: 12, fontWeight: 700, color: '#1A3A6B', textTransform: 'uppercase', letterSpacing: 1, borderBottom: '1.5px solid #E8EDF5', paddingBottom: 6, marginBottom: 10 }}>
+{cat}
+</div>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(210px,1fr))', gap: 8 }}>
+{prods.map(p => {
+const sel = selectedPedidoMinimo[p.id]
+return (
+<div key={p.id} onClick={() => togglePedidoMinimo(p)}
+style={{ border: sel ? '1.5px solid #1A7DC4' : '0.5px solid #E8EDF5', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', background: sel ? '#E6F1FB' : '#fff', transition: 'all .15s' }}>
+<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
+<div>
+<div style={{ fontSize: 13, fontWeight: 500, color: '#1A1A2E', lineHeight: 1.3 }}>{p.name}</div>
+{p.codigo && <div style={{ fontSize: 10, color: '#999' }}>Cód. {p.codigo}</div>}
+</div>
+{sel && <span style={{ color: '#1A7DC4', fontSize: 14, flexShrink: 0 }}>✓</span>}
+</div>
+{sel && (
+<div onClick={e => e.stopPropagation()} style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+<span style={{ fontSize: 11, color: '#666' }}>Qtd.</span>
+<input type="number" min="1" value={sel.qty} onChange={e => updatePedidoMinimoItem(p.id, 'qty', e.target.value)}
+style={{ width: 55, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+{p.units.length > 1 ? (
+<select value={sel.unit} onChange={e => setSelectedPedidoMinimo(s => ({ ...s, [p.id]: { ...s[p.id], unit: e.target.value } }))}
+style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px', border: 'none' }}>
+{p.units.map(u => <option key={u} value={u}>{u}</option>)}
+</select>
+) : (
+<span style={{ fontSize: 11, color: '#888', fontWeight: 600, background: '#f0f4fb', borderRadius: 4, padding: '2px 6px' }}>{sel.unit}</span>
+)}
+</div>
+<div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+<span style={{ fontSize: 11, color: '#666' }}>R$</span>
+<input type="number" min="0" step="0.01" value={sel.price} onChange={e => updatePedidoMinimoItem(p.id, 'price', e.target.value)}
+style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D8EC', fontSize: 12 }} />
+<span style={{ fontSize: 11, color: '#666' }}>/ {sel.unit}</span>
+</div>
+</div>
+)}
+</div>
+)
+})}
+</div>
+</div>
+)
+})}
+<div style={{ background: '#F4F6FB', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+<span style={{ fontSize: 13, color: '#666' }}>Valor mínimo mensal ({pedidoMinimoItens.length} {pedidoMinimoItens.length === 1 ? 'item' : 'itens'})</span>
+<span style={{ fontSize: 20, fontWeight: 600, color: '#1A3A6B' }}>{fmtBRL(pedidoMinimoTotal)}</span>
+</div>
+{pedidoMinimoItens.length === 0 && <div style={{ color: '#C0392B', fontSize: 12, marginBottom: '1rem' }}>Selecione pelo menos um produto para a cláusula ser incluída no contrato.</div>}
+<div style={{ display: 'flex', gap: 8 }}>
+<button onClick={irAnterior} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
+<button onClick={irProximo} style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Ver resumo →</button>
 </div>
 </div>
 )}
@@ -476,6 +581,22 @@ style={{ fontSize: 11, color: '#1A3A6B', fontWeight: 600, background: '#f0f4fb',
 
 {items.length === 0 && <div style={{ color: '#888', fontSize: 13, marginBottom: '1rem' }}>Nenhum produto adicionado.</div>}
 
+{tipoProposta === 'comodato' && cliente.incluirContrato && cliente.incluirPedidoMinimo && pedidoMinimoItens.length > 0 && (
+<div style={{ background: '#FFFBF0', border: '0.5px solid #F0E0B0', borderRadius: 12, padding: '1rem 1.25rem', marginBottom: '1rem' }}>
+<div style={{ fontSize: 13, fontWeight: 600, color: '#1A3A6B', marginBottom: 8 }}>Cláusula de Pedido Mínimo Mensal — Anexo I</div>
+{pedidoMinimoItens.map(it => (
+<div key={it.id} style={{ fontSize: 12, color: '#444', display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+<span>{it.name} — {it.qty} {pluralUnit(it.unit, it.qty)}</span>
+<span>{fmtBRL(it.qty * (it.price || 0))}</span>
+</div>
+))}
+<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '0.5px solid #F0E0B0' }}>
+<span style={{ fontSize: 12, color: '#666' }}>Valor mínimo mensal</span>
+<span style={{ fontSize: 15, fontWeight: 600, color: '#1A3A6B' }}>{fmtBRL(pedidoMinimoTotal)}</span>
+</div>
+</div>
+)}
+
 {tipoProposta === 'comodato' && (
   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer', marginBottom: '1rem' }}>
     <input type="checkbox" checked={cliente.incluirContrato} onChange={e => setCliente(c => ({ ...c, incluirContrato: e.target.checked }))} />
@@ -488,7 +609,7 @@ Exibir valor total no PDF
 </label>
 
 <div style={{ display: 'flex', gap: 8 }}>
-<button onClick={() => setTab('produtos')} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
+<button onClick={irAnterior} style={{ padding: '10px 20px', borderRadius: 8, border: '0.5px solid #D0D8EC', background: '#fff', fontSize: 13, cursor: 'pointer' }}>← Voltar</button>
 <button onClick={handleGerar} disabled={loading}
 style={{ padding: '12px 28px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
 {loading ? 'Gerando...' : '🔍 Gerar PDF'}

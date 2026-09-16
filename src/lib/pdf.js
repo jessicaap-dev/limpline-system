@@ -18,6 +18,53 @@ function limpar(s) {
     .replace(/\u2026/g, '...')
 }
 
+const UNIDADES_EXT = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove']
+const DEZ_A_DEZENOVE_EXT = ['dez', 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove']
+const DEZENAS_EXT = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa']
+const CENTENAS_EXT = ['', 'cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos']
+
+function tresDigitosExtenso(n) {
+  if (n === 0) return ''
+  if (n === 100) return 'cem'
+  const partes = []
+  const c = Math.floor(n / 100)
+  const resto = n % 100
+  if (c > 0) partes.push(CENTENAS_EXT[c])
+  if (resto > 0) {
+    if (partes.length) partes.push('e')
+    if (resto < 10) partes.push(UNIDADES_EXT[resto])
+    else if (resto < 20) partes.push(DEZ_A_DEZENOVE_EXT[resto - 10])
+    else {
+      const d = Math.floor(resto / 10)
+      const u = resto % 10
+      partes.push(DEZENAS_EXT[d])
+      if (u > 0) { partes.push('e'); partes.push(UNIDADES_EXT[u]) }
+    }
+  }
+  return partes.join(' ')
+}
+
+function inteiroPorExtenso(n) {
+  if (n === 0) return 'zero'
+  const milhar = Math.floor(n / 1000)
+  const resto = n % 1000
+  const partes = []
+  if (milhar > 0) partes.push(milhar === 1 ? 'mil' : tresDigitosExtenso(milhar) + ' mil')
+  if (resto > 0) {
+    if (partes.length && resto < 100) partes.push('e')
+    partes.push(tresDigitosExtenso(resto))
+  }
+  return partes.join(' ')
+}
+
+function valorPorExtenso(valor) {
+  const reais = Math.floor(valor)
+  const centavos = Math.round((valor - reais) * 100)
+  let texto = inteiroPorExtenso(reais) + (reais === 1 ? ' real' : ' reais')
+  if (centavos > 0) texto += ' e ' + inteiroPorExtenso(centavos) + (centavos === 1 ? ' centavo' : ' centavos')
+  return texto
+}
+
 function nomeArquivo(prefixo, data) {
   const empresa = limpar(data.empresa || data.cliente || 'Cliente').trim().replace(/\s+/g, '_').replace(/[<>:"/\\|?*]/g, '')
   const dataStr = (data.data || new Date().toLocaleDateString('pt-BR')).replace(/\//g, '-')
@@ -142,6 +189,15 @@ function contratoPages(doc, data, logo) {
 
   const comodatario = limpar(data.empresa || data.cliente || '')
   const cnpj = limpar(data.cnpj || '')
+  const incluirPedidoMinimo = !!data.incluirPedidoMinimo && (data.pedidoMinimoItens || []).length > 0
+  const pedidoMinimoItens = data.pedidoMinimoItens || []
+  const pedidoMinimoTotal = pedidoMinimoItens.reduce((s, it) => s + (it.qty || 1) * (it.price || it.preco || 0), 0)
+
+  // Numeracao das clausulas: 1-4 fixas; se houver pedido minimo, ela entra como 5a,
+  // empurrando Rescisao e Disposicoes Gerais uma posicao a frente
+  const nPedidoMinimo = 5
+  const nRescisao = incluirPedidoMinimo ? 6 : 5
+  const nDisposicoes = incluirPedidoMinimo ? 7 : 6
 
   const clausulas = [
     ['CLÁUSULA 1ª - DAS PARTES',
@@ -152,11 +208,23 @@ function contratoPages(doc, data, logo) {
       'a) Utilizar os equipamentos exclusivamente para os fins previstos neste contrato;\nb) Adquirir os insumos (papéis, sabonetes e refis) exclusivamente dos fornecidos pela COMODANTE, nas quantidades e frequência necessárias ao bom funcionamento dos equipamentos;\nc) Conservar os equipamentos em perfeito estado, responsabilizando-se por danos causados por mau uso;\nd) Comunicar imediatamente a COMODANTE qualquer avaria, defeito ou problema nos equipamentos;\ne) Permitir o acesso dos técnicos da COMODANTE para realização de manutenção;\nf) Devolver os equipamentos ao término do contrato em perfeito estado de conservação, salvo desgaste natural decorrente do uso.'],
     ['CLÁUSULA 4ª - DAS OBRIGAÇÕES DA COMODANTE',
       'a) Fornecer os equipamentos em perfeito estado de funcionamento e higiene;\nb) Realizar a instalação gratuita com treinamento da equipe do COMODATÁRIO;\nc) Realizar manutenção corretiva em até 5 (cinco) dias úteis após a comunicação do problema;\nd) Substituir equipamentos com defeito de fabricação sem custo ao COMODATÁRIO;\ne) Garantir o abastecimento regular dos insumos solicitados, com entrega em até 2 (dois) dias úteis;\nf) Personalizar os equipamentos com a logomarca do COMODATÁRIO, quando solicitado.'],
-    ['CLÁUSULA 5ª - DA RESCISÃO',
-      'O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\nParágrafo único: O descumprimento pelo COMODATÁRIO da obrigação de aquisição exclusiva dos insumos da COMODANTE por período superior a 60 (sessenta) dias ensejará a rescisão imediata do contrato, com a devolução dos equipamentos no prazo de 5 (cinco) dias úteis.'],
-    ['CLÁUSULA 6ª - DAS DISPOSIÇÕES GERAIS',
-      'O presente contrato é regido pela legislação brasileira, especialmente pelos artigos 579 a 585 do Código Civil Brasileiro. As partes elegem o foro da comarca de São Paulo/SP, com exclusão de qualquer outro, por mais privilegiado que seja, para dirimir quaisquer controvérsias oriundas do presente instrumento.'],
   ]
+
+  if (incluirPedidoMinimo) {
+    clausulas.push([
+      'CLÁUSULA ' + nPedidoMinimo + 'ª - DO PEDIDO MÍNIMO MENSAL',
+      'Para a manutenção do sistema de comodato, o COMODATÁRIO se compromete a realizar pedido mínimo mensal obrigatório de insumos, nas quantidades discriminadas no Anexo I deste contrato, correspondente ao valor mínimo de R$ ' + fmtBRL(pedidoMinimoTotal).replace('R$ ', '') + ' (' + valorPorExtenso(pedidoMinimoTotal) + ') mensais.\n\nParágrafo único: O não cumprimento do pedido mínimo mensal obrigatório por 2 (dois) meses consecutivos ou por 3 (três) meses alternados dentro de um período de 6 (seis) meses ensejará a rescisão do contrato, nos termos da Cláusula ' + nRescisao + 'ª, com a devolução dos equipamentos no prazo de 5 (cinco) dias úteis.'
+    ])
+  }
+
+  clausulas.push(
+    ['CLÁUSULA ' + nRescisao + 'ª - DA RESCISÃO',
+      incluirPedidoMinimo
+        ? 'O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\nParágrafo único: O descumprimento pelo COMODATÁRIO da obrigação de aquisição exclusiva dos insumos da COMODANTE por período superior a 60 (sessenta) dias, ou do pedido mínimo mensal obrigatório previsto na Cláusula ' + nPedidoMinimo + 'ª, ensejará a rescisão imediata do contrato, com a devolução dos equipamentos no prazo de 5 (cinco) dias úteis.'
+        : 'O presente contrato poderá ser rescindido por qualquer das partes mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias.\n\nParágrafo único: O descumprimento pelo COMODATÁRIO da obrigação de aquisição exclusiva dos insumos da COMODANTE por período superior a 60 (sessenta) dias ensejará a rescisão imediata do contrato, com a devolução dos equipamentos no prazo de 5 (cinco) dias úteis.'],
+    ['CLÁUSULA ' + nDisposicoes + 'ª - DAS DISPOSIÇÕES GERAIS',
+      'O presente contrato é regido pela legislação brasileira, especialmente pelos artigos 579 a 585 do Código Civil Brasileiro. As partes elegem o foro da comarca de São Paulo/SP, com exclusão de qualquer outro, por mais privilegiado que seja, para dirimir quaisquer controvérsias oriundas do presente instrumento.']
+  )
 
   clausulas.forEach(([titulo, texto]) => {
     if (y > 245) { footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36 }
@@ -188,6 +256,15 @@ function contratoPages(doc, data, logo) {
   doc.text('CPF: ____________________________', M, y)
   doc.text('CPF: ____________________________', W - M, y, { align: 'right' })
   footer(doc)
+
+  if (incluirPedidoMinimo) {
+    doc.addPage(); header(doc, logo); addWatermark(doc, logo)
+    let yA = 36
+    doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
+    doc.text('ANEXO I - PEDIDO MÍNIMO MENSAL', W / 2, yA, { align: 'center' }); yA += 10
+    yA = produtosTable(doc, yA, pedidoMinimoItens, { ...data, mostrarTotal: true, showTotal: true })
+    footer(doc)
+  }
 }
 
 export async function generateProposta(data) {
