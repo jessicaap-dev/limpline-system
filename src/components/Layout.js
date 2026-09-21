@@ -7,12 +7,14 @@ export default function Layout({ children, title }) {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Estoque foi movido pro limpline-contatos (as vendedoras entram muito
+  // mais lá) — ver src/pages/Estoque.js nesse projeto, mantido só como
+  // backup dos dados, sem rota/menu aqui.
   const navItems = [
     { path: '/proposta', label: '📄 Proposta', roles: ['admin', 'vendedora'] },
     { path: '/contrato', label: '📋 Contrato', roles: ['admin', 'vendedora'] },
     { path: '/painel', label: '📊 Painel', roles: ['admin'] },
     { path: '/catalogo', label: '🗂️ Catálogo', roles: ['admin'] },
-    { path: '/estoque', label: '📦 Estoque', roles: ['admin', 'vendedora'] },
   ].filter(item => item.roles.includes(user?.role))
 
   function handleLogout() {

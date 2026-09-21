@@ -6,7 +6,6 @@ import Proposta from './pages/Proposta'
 import Contrato from './pages/Contrato'
 import Painel from './pages/Painel'
 import AdminCatalogo from './pages/AdminCatalogo'
-import Estoque from './pages/Estoque'
 
 function PrivateRoute({ children, adminOnly, blockUserIds }) {
   const { user } = useAuth()
@@ -25,7 +24,8 @@ function AppRoutes() {
       <Route path="/contrato" element={<PrivateRoute><Contrato /></PrivateRoute>} />
       <Route path="/painel" element={<PrivateRoute adminOnly><Painel /></PrivateRoute>} />
       <Route path="/catalogo" element={<PrivateRoute adminOnly><AdminCatalogo /></PrivateRoute>} />
-      <Route path="/estoque" element={<PrivateRoute><Estoque /></PrivateRoute>} />
+      {/* /estoque foi movido pro limpline-contatos — Estoque.js e a tabela
+          ficam aqui só como backup, sem rota nem menu. */}
       <Route path="*" element={<Navigate to={user ? '/proposta' : '/login'} />} />
     </Routes>
   )
