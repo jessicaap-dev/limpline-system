@@ -115,36 +115,55 @@ useEffect(() => {
 const items = [...Object.values(produtosSelected), ...Object.values(equipSelected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
+async function fetchJson(url) {
+const ctrl = new AbortController()
+const t = setTimeout(() => ctrl.abort(), 8000)
+try {
+const res = await fetch(url, { signal: ctrl.signal })
+if (!res.ok) throw new Error('HTTP ' + res.status)
+return await res.json()
+} finally { clearTimeout(t) }
+}
+
+const fmtEndereco = (logr, num, bairro, mun, uf, cep) =>
+`${logr || ''}, ${num || 'S/N'} – ${bairro || ''}, ${mun || ''}/${uf || ''} – CEP ${cep || ''}`
+
 async function buscarCNPJ(cnpj) {
 const numeros = cnpj.replace(/\D/g, '')
 if (numeros.length !== 14) return
-try {
 setBuscandoCNPJ(true)
-const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
-if (!res.ok) throw new Error('CNPJ não encontrado')
-const data = await res.json()
-if (data.razao_social) {
-setCliente(c => ({
-...c,
-empresa: data.nome_fantasia || data.razao_social,
-endereco: `${data.logradouro || ''}, ${data.numero || 'S/N'} – ${data.bairro || ''}, ${data.municipio || ''}/${data.uf || ''} – CEP ${data.cep || ''}`
-}))
-}
-} catch (e) {
+const provedores = [
+async () => {
+const d = await fetchJson(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
+if (!d.razao_social) throw new Error('vazio')
+return { empresa: d.nome_fantasia || d.razao_social, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
+},
+async () => {
+const d = await fetchJson(`https://publica.cnpj.ws/cnpj/${numeros}`)
+const e = d.estabelecimento
+if (!d.razao_social || !e) throw new Error('vazio')
+return { empresa: e.nome_fantasia || d.razao_social, endereco: fmtEndereco(e.logradouro, e.numero, e.bairro, e.cidade && e.cidade.nome, e.estado && e.estado.sigla, e.cep) }
+},
+async () => {
+const d = await fetchJson(`https://minhareceita.org/${numeros}`)
+if (!d.razao_social) throw new Error('vazio')
+return { empresa: d.nome_fantasia || d.razao_social, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
+},
+async () => {
+const d = await fetchJson(`https://receitaws.com.br/v1/cnpj/${numeros}`)
+if (!d.nome) throw new Error('vazio')
+return { empresa: d.fantasia || d.nome, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
+},
+]
 try {
-const res2 = await fetch(`https://receitaws.com.br/v1/cnpj/${numeros}`)
-if (!res2.ok) throw new Error('CNPJ não encontrado')
-const data2 = await res2.json()
-if (data2.nome) {
-setCliente(c => ({
-...c,
-empresa: data2.fantasia || data2.nome,
-endereco: `${data2.logradouro || ''}, ${data2.numero || 'S/N'} – ${data2.bairro || ''}, ${data2.municipio || ''}/${data2.uf || ''} – CEP ${data2.cep || ''}`
-}))
+for (const p of provedores) {
+try {
+const r = await p()
+setCliente(c => ({ ...c, ...r }))
+return
+} catch (e) { /* tenta o próximo */ }
 }
-} catch (e2) {
-alert('CNPJ não encontrado. Verifique o número e tente novamente.')
-}
+alert('Não consegui buscar esse CNPJ agora (os serviços da Receita podem estar instáveis). Preencha empresa e endereço manualmente ou tente de novo em instantes.')
 } finally {
 setBuscandoCNPJ(false)
 }
@@ -193,7 +212,8 @@ setLoading(true)
 try {
 const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
   const usaPedidoMinimo = tipoProposta === 'comodato' && cliente.incluirContrato && cliente.incluirPedidoMinimo
-  const data = { ...cliente, comodato: comodatoFinal, produtos: items, vendedora: user.name, genero: user.genero, showTotal, tipoProposta, incluirPedidoMinimo: usaPedidoMinimo, pedidoMinimoItens: usaPedidoMinimo ? pedidoMinimoItens : [] }
+  const itensPdf = tipoProposta === 'insumos_equipamentos' ? [...Object.values(produtosSelected), ...customProducts, ...Object.values(equipSelected).map(e => ({ ...e, grupo: 'equipamento' }))] : items
+  const data = { ...cliente, comodato: comodatoFinal, produtos: itensPdf, vendedora: user.name, genero: user.genero, showTotal, tipoProposta, incluirPedidoMinimo: usaPedidoMinimo, pedidoMinimoItens: usaPedidoMinimo ? pedidoMinimoItens : [] }
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
@@ -551,8 +571,9 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>Vendedora: {user.name}</div>
 </div>
 
-{items.length > 0 && (
-<div style={{ background: '#fff', border: '0.5px solid #E8EDF5', borderRadius: 12, overflow: 'hidden', marginBottom: '1rem' }}>
+{(tipoProposta === 'insumos_equipamentos' ? [['Insumos', [...Object.values(produtosSelected), ...customProducts]], ['Equipamentos', Object.values(equipSelected)]] : [[null, items]]).filter(g => g[1].length > 0).map(([titulo, lista]) => (
+<div key={titulo || 'todos'} style={{ background: '#fff', border: '0.5px solid #E8EDF5', borderRadius: 12, overflow: 'hidden', marginBottom: '1rem' }}>
+{titulo && <div style={{ padding: '8px 12px', fontSize: 13, fontWeight: 700, color: '#1A3A6B', background: '#E6ECF5' }}>{titulo}</div>}
 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
 <thead>
 <tr style={{ background: '#1A3A6B' }}>
@@ -562,7 +583,7 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 </tr>
 </thead>
 <tbody>
-{items.map((it, i) => (
+{lista.map((it, i) => (
 <tr key={it.id} style={{ background: i % 2 === 0 ? '#F8FAFF' : '#fff' }}>
 <td style={{ padding: '8px 12px', color: '#1A1A2E' }}>{it.name}</td>
 <td style={{ padding: '8px 12px', textAlign: 'right', color: '#444' }}>{it.qty} {pluralUnit(it.unit, it.qty)}</td>
@@ -573,11 +594,11 @@ style={{ flex: 1, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #D0D
 </tbody>
 </table>
 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 16, padding: '12px 16px', borderTop: '0.5px solid #E8EDF5' }}>
-<span style={{ fontSize: 13, color: '#666' }}>Total do pedido</span>
-<span style={{ fontSize: 20, fontWeight: 600, color: '#1A3A6B' }}>{fmtBRL(total)}</span>
+<span style={{ fontSize: 13, color: '#666' }}>{titulo ? 'Total ' + titulo.toLowerCase() : 'Total do pedido'}</span>
+<span style={{ fontSize: 20, fontWeight: 600, color: '#1A3A6B' }}>{fmtBRL(lista.reduce((s, it) => s + it.qty * (it.price || 0), 0))}</span>
 </div>
 </div>
-)}
+))}
 
 {items.length === 0 && <div style={{ color: '#888', fontSize: 13, marginBottom: '1rem' }}>Nenhum produto adicionado.</div>}
 

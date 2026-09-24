@@ -93,11 +93,11 @@ function justified(doc, text, x, w, y, lh) {
   return y
 }
 
-function produtosTable(doc, y, produtos, data) {
+function produtosTable(doc, y, produtos, data, titulo, totalLabel) {
   doc.setFillColor(...AZUL)
   doc.rect(M, y, W - M * 2, 7, 'F')
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-  doc.text('Valores e sugestão do pedido', M + 2, y + 4.5); y += 9
+  doc.text(titulo || 'Valores e sugestão do pedido', M + 2, y + 4.5); y += 9
   const cw = [90, 28, 28, 28]
   doc.setFillColor(230, 236, 245); doc.rect(M, y, W - M * 2, 6, 'F')
   doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...AZUL)
@@ -121,7 +121,7 @@ function produtosTable(doc, y, produtos, data) {
   if (data.mostrarTotal !== false && data.showTotal !== false) {
     doc.setFillColor(...AZUL); doc.rect(M, y, W - M * 2, 7, 'F')
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-    doc.text('Total do pedido:', M + 2, y + 4.5)
+    doc.text(totalLabel || 'Total do pedido:', M + 2, y + 4.5)
     doc.text(fmtBRL(total), W - M - 2, y + 4.5, { align: 'right' }); y += 10
   }
   return y
@@ -345,11 +345,23 @@ export async function generateProposta(data) {
   const comodatoItens = (data.comodato || []).filter(e => e.nome || e.name)
 
   // Tabela de produtos/precos (logo apos "Vendedora")
-  if (produtos.length > 0) {
-    if (y + produtosTableHeight(produtos, data) > 270) {
+  const grupos = data.tipoProposta === 'insumos_equipamentos'
+    ? [['Insumos', 'Total insumos:', produtos.filter(p => p.grupo !== 'equipamento')], ['Equipamentos', 'Total equipamentos:', produtos.filter(p => p.grupo === 'equipamento')]].filter(g => g[2].length > 0)
+    : [[null, null, produtos]]
+  grupos.forEach(([titulo, totalLabel, lista]) => {
+    if (lista.length === 0) return
+    if (y + produtosTableHeight(lista, data) > 270) {
       footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36
     }
-    y = produtosTable(doc, y, produtos, data)
+    y = produtosTable(doc, y, lista, data, titulo && 'Valores e sugestão do pedido - ' + titulo, totalLabel)
+  })
+  if (grupos.length > 1 && data.showTotal !== false) {
+    if (y + 10 > 270) { footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36 }
+    const totalGeral = produtos.reduce((s, it) => s + (it.qty || 1) * (it.preco || it.price || 0), 0)
+    doc.setFillColor(...AZUL); doc.rect(M, y, W - M * 2, 7, 'F')
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
+    doc.text('Total geral do pedido:', M + 2, y + 4.5)
+    doc.text(fmtBRL(totalGeral), W - M - 2, y + 4.5, { align: 'right' }); y += 10
   }
 
   // Tabela comodato (Suportes a serem instalados sem custo), em seguida
