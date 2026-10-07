@@ -242,27 +242,29 @@ function contratoPages(doc, data, logo) {
   doc.line(M, y, M + 75, y)
   doc.line(W - M - 75, y, W - M, y); y += 4
   doc.setFontSize(8); doc.setTextColor(...CINZA)
+  const xR = W - M - 75
   doc.text('COMODANTE', M + 20, y)
-  doc.text('COMODATÁRIO', W - M - 40, y); y += 3
+  doc.text('COMODATÁRIO', xR + 20, y); y += 3
   doc.text('LIMPLINE COMERCIAL LTDA', M, y)
-  doc.text(comodatario, W - M, y, { align: 'right' }); y += 4
+  const nomeLinhas = doc.splitTextToSize(comodatario, 80)
+  doc.text(nomeLinhas, xR, y); y += 1 + 3 * nomeLinhas.length
   const rl = data.respLimpline || {}
   const linhaResp = (n, c) => [n && limpar(n), c && 'CPF: ' + limpar(c)].filter(Boolean).join(' - ')
   const lL = linhaResp(rl.nome, rl.cpf), lC = linhaResp(data.nome, data.cpf)
   if (lL) doc.text(lL, M, y)
-  if (lC) doc.text(lC, W - M, y, { align: 'right' })
+  if (lC) doc.text(lC, xR, y)
   y += lL || lC ? 10 : 6
   doc.line(M, y, M + 75, y)
   doc.line(W - M - 75, y, W - M, y); y += 4
   doc.setFontSize(8); doc.setTextColor(...CINZA)
   doc.text('TESTEMUNHA 1', M + 20, y)
-  doc.text('TESTEMUNHA 2', W - M - 40, y); y += 3
+  doc.text('TESTEMUNHA 2', xR + 20, y); y += 3
   const tst = data.testemunhas || []
   const campo = (rot, v, n) => rot + ': ' + (v ? limpar(v) : '_'.repeat(n))
   doc.text(campo('Nome', tst[0] && tst[0].nome, 27), M, y)
-  doc.text(campo('Nome', tst[1] && tst[1].nome, 27), W - M, y, { align: 'right' }); y += 4
+  doc.text(campo('Nome', tst[1] && tst[1].nome, 27), xR, y); y += 4
   doc.text(campo('CPF', tst[0] && tst[0].cpf, 28), M, y)
-  doc.text(campo('CPF', tst[1] && tst[1].cpf, 28), W - M, y, { align: 'right' })
+  doc.text(campo('CPF', tst[1] && tst[1].cpf, 28), xR, y)
   footer(doc)
 
   if (incluirPedidoMinimo) {
