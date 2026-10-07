@@ -19,15 +19,19 @@ export default function Contrato() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
+  const [cnpjMsg, setCnpjMsg] = useState('')
+  const ultimoCnpj = React.useRef('')
 
   async function buscarCNPJ(cnpj) {
-    if (cnpj.replace(/[^0-9]/g, '').length !== 14) return
-    setBuscandoCNPJ(true)
+    const num = cnpj.replace(/[^0-9]/g, '')
+  if (num.length !== 14 || num === ultimoCnpj.current) return
+  ultimoCnpj.current = num
+    setCnpjMsg(''); setBuscandoCNPJ(true)
     try {
       const r = await buscarDadosCNPJ(cnpj)
-      if (!r) { alert(MSG_CNPJ_FALHA); return }
+      if (!r) { ultimoCnpj.current = ""; setCnpjMsg(MSG_CNPJ_FALHA); return }
       setDados(d => ({ ...d, empresa: r.empresa, endereco: r.endereco || d.endereco }))
-      if (r.aviso) alert(r.aviso)
+      setCnpjMsg(r.aviso || '')
     } finally {
       setBuscandoCNPJ(false)
     }
@@ -76,10 +80,11 @@ export default function Contrato() {
           {[['nome', 'Nome do responsável'], ['cpf', 'CPF do responsável'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'Endereço completo'], ['data', 'Data do contrato']].map(([k, l]) => (
             <div key={k} style={{ gridColumn: k === 'endereco' || k === 'data' ? '1 / -1' : 'auto' }}>
               <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
-              <input value={dados[k]} onChange={e => setDados(d => ({ ...d, [k]: e.target.value }))}
+              <input value={dados[k]} onChange={e => { if (k === 'cnpj') buscarCNPJ(e.target.value); setDados(d => ({ ...d, [k]: e.target.value })) }}
                 onBlur={k === 'cnpj' ? () => buscarCNPJ(dados.cnpj) : undefined}
                 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
-              {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>🔍 Buscando dados do CNPJ...</div>}
+              {k === 'cnpj' && cnpjMsg && <div style={{fontSize:12, color:'#C0392B', marginTop:4}}>{cnpjMsg}</div>}
+{k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>🔍 Buscando dados do CNPJ...</div>}
             </div>
           ))}
         </div>

@@ -100,6 +100,8 @@ const [loading, setLoading] = useState(false)
 const [showTotal, setShowTotal] = useState(true)
 const [success, setSuccess] = useState('')
 const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
+const [cnpjMsg, setCnpjMsg] = useState('')
+const ultimoCnpj = React.useRef('')
 const [equipamentos, setEquipamentos] = useState([])
 const [carregandoEquipamentos, setCarregandoEquipamentos] = useState(true)
 const [produtosCatalogo, setProdutosCatalogo] = useState([])
@@ -120,13 +122,15 @@ const items = [...Object.values(produtosSelected), ...Object.values(equipSelecte
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
 async function buscarCNPJ(cnpj) {
-if (cnpj.replace(/[^0-9]/g, '').length !== 14) return
-setBuscandoCNPJ(true)
+const num = cnpj.replace(/[^0-9]/g, '')
+  if (num.length !== 14 || num === ultimoCnpj.current) return
+  ultimoCnpj.current = num
+setCnpjMsg(''); setBuscandoCNPJ(true)
 try {
 const r = await buscarDadosCNPJ(cnpj)
-if (!r) { alert(MSG_CNPJ_FALHA); return }
+if (!r) { ultimoCnpj.current = ""; setCnpjMsg(MSG_CNPJ_FALHA); return }
 setCliente(c => ({ ...c, empresa: r.empresa, endereco: r.endereco || c.endereco }))
-if (r.aviso) alert(r.aviso)
+setCnpjMsg(r.aviso || '')
 } finally {
 setBuscandoCNPJ(false)
 }
@@ -236,9 +240,10 @@ style={{ padding: '8px 18px', borderRadius: 8, border: '0.5px solid #D0D8EC', ba
 {[['nome', 'Nome do responsável'], ['cpf', 'CPF do responsável'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'Endereço completo']].map(([k, l]) => (
 <div key={k}>
 <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
-<input value={cliente[k]} onChange={e => setCliente(c => ({ ...c, [k]: e.target.value }))}
+<input value={cliente[k]} onChange={e => { if (k === 'cnpj') buscarCNPJ(e.target.value); setCliente(c => ({ ...c, [k]: e.target.value })) }}
 onBlur={k === 'cnpj' ? () => buscarCNPJ(cliente.cnpj) : undefined}
 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px solid #D0D8EC', fontSize: 13, boxSizing: 'border-box' }} />
+{k === 'cnpj' && cnpjMsg && <div style={{fontSize:12, color:'#C0392B', marginTop:4}}>{cnpjMsg}</div>}
 {k === 'cnpj' && buscandoCNPJ && <div style={{fontSize:12, color:'#1A7DC4', marginTop:4}}>📄 Buscando dados do CNPJ...</div>}
 </div>
 ))}
