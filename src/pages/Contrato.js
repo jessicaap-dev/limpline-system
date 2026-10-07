@@ -3,6 +3,7 @@ import { useAuth } from '../lib/auth'
 import { COMODATO_DEFAULT } from '../lib/config'
 import { generateContrato } from '../lib/pdf'
 import { supabase } from '../lib/config'
+import { buscarDadosCNPJ, MSG_CNPJ_FALHA } from '../lib/cnpj'
 import Layout from '../components/Layout'
 import Testemunhas, { useTestemunhas, useResponsavelLimpline, ResponsavelLimpline } from '../components/Testemunhas'
 
@@ -20,35 +21,13 @@ export default function Contrato() {
   const [buscandoCNPJ, setBuscandoCNPJ] = useState(false)
 
   async function buscarCNPJ(cnpj) {
-    const numeros = cnpj.replace(/\D/g, '')
-    if (numeros.length !== 14) return
+    if (cnpj.replace(/[^0-9]/g, '').length !== 14) return
+    setBuscandoCNPJ(true)
     try {
-      setBuscandoCNPJ(true)
-      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
-      if (!res.ok) throw new Error('CNPJ não encontrado')
-      const data = await res.json()
-      if (data.razao_social) {
-        setDados(d => ({
-          ...d,
-          empresa: data.nome_fantasia || data.razao_social,
-          endereco: `${data.logradouro || ''}, ${data.numero || 'S/N'} – ${data.bairro || ''}, ${data.municipio || ''}/${data.uf || ''} – CEP ${data.cep || ''}`
-        }))
-      }
-    } catch (e) {
-      try {
-        const res2 = await fetch(`https://receitaws.com.br/v1/cnpj/${numeros}`)
-        if (!res2.ok) throw new Error('CNPJ não encontrado')
-        const data2 = await res2.json()
-        if (data2.nome) {
-          setDados(d => ({
-            ...d,
-            empresa: data2.fantasia || data2.nome,
-            endereco: `${data2.logradouro || ''}, ${data2.numero || 'S/N'} – ${data2.bairro || ''}, ${data2.municipio || ''}/${data2.uf || ''} – CEP ${data2.cep || ''}`
-          }))
-        }
-      } catch (e2) {
-        alert('CNPJ não encontrado. Verifique o número e tente novamente.')
-      }
+      const r = await buscarDadosCNPJ(cnpj)
+      if (!r) { alert(MSG_CNPJ_FALHA); return }
+      setDados(d => ({ ...d, empresa: r.empresa, endereco: r.endereco || d.endereco }))
+      if (r.aviso) alert(r.aviso)
     } finally {
       setBuscandoCNPJ(false)
     }

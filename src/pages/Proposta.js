@@ -4,6 +4,7 @@ import { COMODATO_DEFAULT, fmtBRL, pluralUnit } from '../lib/config'
 import { generateProposta } from '../lib/pdf'
 import { supabase } from '../lib/config'
 import { fetchCatalogo, equipamentoParaProduto, produtoCatalogoParaProduto } from '../lib/catalogoItens'
+import { buscarDadosCNPJ, MSG_CNPJ_FALHA } from '../lib/cnpj'
 import Layout from '../components/Layout'
 import Testemunhas, { useTestemunhas, useResponsavelLimpline, ResponsavelLimpline } from '../components/Testemunhas'
 
@@ -118,55 +119,14 @@ useEffect(() => {
 const items = [...Object.values(produtosSelected), ...Object.values(equipSelected), ...customProducts]
 const total = items.reduce((s, it) => s + it.qty * (it.price || 0), 0)
 
-async function fetchJson(url) {
-const ctrl = new AbortController()
-const t = setTimeout(() => ctrl.abort(), 8000)
-try {
-const res = await fetch(url, { signal: ctrl.signal })
-if (!res.ok) throw new Error('HTTP ' + res.status)
-return await res.json()
-} finally { clearTimeout(t) }
-}
-
-const fmtEndereco = (logr, num, bairro, mun, uf, cep) =>
-`${logr || ''}, ${num || 'S/N'} – ${bairro || ''}, ${mun || ''}/${uf || ''} – CEP ${cep || ''}`
-
 async function buscarCNPJ(cnpj) {
-const numeros = cnpj.replace(/\D/g, '')
-if (numeros.length !== 14) return
+if (cnpj.replace(/[^0-9]/g, '').length !== 14) return
 setBuscandoCNPJ(true)
-const provedores = [
-async () => {
-const d = await fetchJson(`https://brasilapi.com.br/api/cnpj/v1/${numeros}`)
-if (!d.razao_social) throw new Error('vazio')
-return { empresa: d.nome_fantasia || d.razao_social, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
-},
-async () => {
-const d = await fetchJson(`https://publica.cnpj.ws/cnpj/${numeros}`)
-const e = d.estabelecimento
-if (!d.razao_social || !e) throw new Error('vazio')
-return { empresa: e.nome_fantasia || d.razao_social, endereco: fmtEndereco(e.logradouro, e.numero, e.bairro, e.cidade && e.cidade.nome, e.estado && e.estado.sigla, e.cep) }
-},
-async () => {
-const d = await fetchJson(`https://minhareceita.org/${numeros}`)
-if (!d.razao_social) throw new Error('vazio')
-return { empresa: d.nome_fantasia || d.razao_social, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
-},
-async () => {
-const d = await fetchJson(`https://receitaws.com.br/v1/cnpj/${numeros}`)
-if (!d.nome) throw new Error('vazio')
-return { empresa: d.fantasia || d.nome, endereco: fmtEndereco(d.logradouro, d.numero, d.bairro, d.municipio, d.uf, d.cep) }
-},
-]
 try {
-for (const p of provedores) {
-try {
-const r = await p()
-setCliente(c => ({ ...c, ...r }))
-return
-} catch (e) { /* tenta o próximo */ }
-}
-alert('Não consegui buscar esse CNPJ agora (os serviços da Receita podem estar instáveis). Preencha empresa e endereço manualmente ou tente de novo em instantes.')
+const r = await buscarDadosCNPJ(cnpj)
+if (!r) { alert(MSG_CNPJ_FALHA); return }
+setCliente(c => ({ ...c, empresa: r.empresa, endereco: r.endereco || c.endereco }))
+if (r.aviso) alert(r.aviso)
 } finally {
 setBuscandoCNPJ(false)
 }
