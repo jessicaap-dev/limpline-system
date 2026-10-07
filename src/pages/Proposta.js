@@ -5,6 +5,7 @@ import { generateProposta } from '../lib/pdf'
 import { supabase } from '../lib/config'
 import { fetchCatalogo, equipamentoParaProduto, produtoCatalogoParaProduto } from '../lib/catalogoItens'
 import Layout from '../components/Layout'
+import Testemunhas, { useTestemunhas } from '../components/Testemunhas'
 
 export default function Proposta() {
 const { user } = useAuth()
@@ -61,6 +62,7 @@ const customMap = {
 }
 const [customProducts, setCustomProducts] = customMap[tipoProposta]
 
+const [testemunhas, setTestemunhas] = useTestemunhas()
 const [selectedPedidoMinimo, setSelectedPedidoMinimo] = useState({})
 const pedidoMinimoItens = Object.values(selectedPedidoMinimo)
 const pedidoMinimoTotal = pedidoMinimoItens.reduce((s, it) => s + it.qty * (it.price || 0), 0)
@@ -213,7 +215,7 @@ try {
 const comodatoFinal = tipoProposta === 'comodato' ? comodato : []
   const usaPedidoMinimo = tipoProposta === 'comodato' && cliente.incluirContrato && cliente.incluirPedidoMinimo
   const itensPdf = tipoProposta === 'insumos_equipamentos' ? [...Object.values(produtosSelected), ...customProducts, ...Object.values(equipSelected).map(e => ({ ...e, grupo: 'equipamento' }))] : items
-  const data = { ...cliente, comodato: comodatoFinal, produtos: itensPdf, vendedora: user.name, genero: user.genero, showTotal, tipoProposta, incluirPedidoMinimo: usaPedidoMinimo, pedidoMinimoItens: usaPedidoMinimo ? pedidoMinimoItens : [] }
+  const data = { ...cliente, testemunhas, comodato: comodatoFinal, produtos: itensPdf, vendedora: user.name, genero: user.genero, showTotal, tipoProposta, incluirPedidoMinimo: usaPedidoMinimo, pedidoMinimoItens: usaPedidoMinimo ? pedidoMinimoItens : [] }
 const fn = await generateProposta(data)
 try {
 const { error: insertError } = await supabase.from('historico').insert({
@@ -301,6 +303,7 @@ style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '0.5px sol
     Incluir minuta do contrato no PDF
   </label>
 )}
+{tipoProposta === 'comodato' && cliente.incluirContrato && <Testemunhas testemunhas={testemunhas} onChange={setTestemunhas} />}
 {tipoProposta === 'comodato' && cliente.incluirContrato && (
   <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, cursor: 'pointer' }}>
     <input type="checkbox" checked={cliente.incluirPedidoMinimo} onChange={e => setCliente(c => ({ ...c, incluirPedidoMinimo: e.target.checked }))} />

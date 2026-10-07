@@ -4,6 +4,7 @@ import { COMODATO_DEFAULT } from '../lib/config'
 import { generateContrato } from '../lib/pdf'
 import { supabase } from '../lib/config'
 import Layout from '../components/Layout'
+import Testemunhas, { useTestemunhas } from '../components/Testemunhas'
 
 export default function Contrato() {
   const { user } = useAuth()
@@ -11,6 +12,7 @@ export default function Contrato() {
     nome: '', empresa: '', cnpj: '', endereco: '',
     data: new Date().toLocaleDateString('pt-BR'),
   })
+  const [testemunhas, setTestemunhas] = useTestemunhas()
   const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
@@ -64,7 +66,7 @@ export default function Contrato() {
   async function handleGerar() {
     if (!dados.empresa) { alert('Preencha o nome da empresa.'); return }
     setLoading(true)
-    const data = { ...dados, comodato }
+    const data = { ...dados, comodato, testemunhas }
     const fn = await generateContrato(data)
     try {
       await supabase.from('historico').insert({
@@ -119,6 +121,8 @@ export default function Contrato() {
             + Adicionar equipamento
           </button>
         </div>
+
+        <Testemunhas testemunhas={testemunhas} onChange={setTestemunhas} />
 
         <button onClick={handleGerar} disabled={loading}
           style={{ padding: '12px 28px', borderRadius: 8, border: 'none', background: '#1A3A6B', color: '#fff', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, alignSelf: 'flex-start' }}>

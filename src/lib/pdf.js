@@ -251,10 +251,12 @@ function contratoPages(doc, data, logo) {
   doc.setFontSize(8); doc.setTextColor(...CINZA)
   doc.text('TESTEMUNHA 1', M + 20, y)
   doc.text('TESTEMUNHA 2', W - M - 40, y); y += 3
-  doc.text('Nome: ___________________________', M, y)
-  doc.text('Nome: ___________________________', W - M, y, { align: 'right' }); y += 4
-  doc.text('CPF: ____________________________', M, y)
-  doc.text('CPF: ____________________________', W - M, y, { align: 'right' })
+  const tst = data.testemunhas || []
+  const campo = (rot, v, n) => rot + ': ' + (v ? limpar(v) : '_'.repeat(n))
+  doc.text(campo('Nome', tst[0] && tst[0].nome, 27), M, y)
+  doc.text(campo('Nome', tst[1] && tst[1].nome, 27), W - M, y, { align: 'right' }); y += 4
+  doc.text(campo('CPF', tst[0] && tst[0].cpf, 28), M, y)
+  doc.text(campo('CPF', tst[1] && tst[1].cpf, 28), W - M, y, { align: 'right' })
   footer(doc)
 
   if (incluirPedidoMinimo) {
