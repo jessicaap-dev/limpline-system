@@ -245,7 +245,13 @@ function contratoPages(doc, data, logo) {
   doc.text('COMODANTE', M + 20, y)
   doc.text('COMODATÁRIO', W - M - 40, y); y += 3
   doc.text('LIMPLINE COMERCIAL LTDA', M, y)
-  doc.text(comodatario, W - M, y, { align: 'right' }); y += 10
+  doc.text(comodatario, W - M, y, { align: 'right' }); y += 4
+  const rl = data.respLimpline || {}
+  const linhaResp = (n, c) => [n && limpar(n), c && 'CPF: ' + limpar(c)].filter(Boolean).join(' - ')
+  const lL = linhaResp(rl.nome, rl.cpf), lC = linhaResp(data.nome, data.cpf)
+  if (lL) doc.text(lL, M, y)
+  if (lC) doc.text(lC, W - M, y, { align: 'right' })
+  y += lL || lC ? 10 : 6
   doc.line(M, y, M + 75, y)
   doc.line(W - M - 75, y, W - M, y); y += 4
   doc.setFontSize(8); doc.setTextColor(...CINZA)

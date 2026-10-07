@@ -4,15 +4,16 @@ import { COMODATO_DEFAULT } from '../lib/config'
 import { generateContrato } from '../lib/pdf'
 import { supabase } from '../lib/config'
 import Layout from '../components/Layout'
-import Testemunhas, { useTestemunhas } from '../components/Testemunhas'
+import Testemunhas, { useTestemunhas, useResponsavelLimpline, ResponsavelLimpline } from '../components/Testemunhas'
 
 export default function Contrato() {
   const { user } = useAuth()
   const [dados, setDados] = useState({
-    nome: '', empresa: '', cnpj: '', endereco: '',
+    nome: '', cpf: '', empresa: '', cnpj: '', endereco: '',
     data: new Date().toLocaleDateString('pt-BR'),
   })
   const [testemunhas, setTestemunhas] = useTestemunhas()
+  const [respLimpline, setRespLimpline] = useResponsavelLimpline()
   const [comodato, setComodato] = useState(COMODATO_DEFAULT.map((c, i) => ({ ...c, id: i })))
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
@@ -66,7 +67,7 @@ export default function Contrato() {
   async function handleGerar() {
     if (!dados.empresa) { alert('Preencha o nome da empresa.'); return }
     setLoading(true)
-    const data = { ...dados, comodato, testemunhas }
+    const data = { ...dados, comodato, testemunhas, respLimpline }
     const fn = await generateContrato(data)
     try {
       await supabase.from('historico').insert({
@@ -93,7 +94,7 @@ export default function Contrato() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 600 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {[['nome', 'Nome do responsável'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'Endereço completo'], ['data', 'Data do contrato']].map(([k, l]) => (
+          {[['nome', 'Nome do responsável'], ['cpf', 'CPF do responsável'], ['empresa', 'Empresa *'], ['cnpj', 'CNPJ'], ['endereco', 'Endereço completo'], ['data', 'Data do contrato']].map(([k, l]) => (
             <div key={k} style={{ gridColumn: k === 'endereco' || k === 'data' ? '1 / -1' : 'auto' }}>
               <label style={{ fontSize: 12, color: '#666', display: 'block', marginBottom: 4 }}>{l}</label>
               <input value={dados[k]} onChange={e => setDados(d => ({ ...d, [k]: e.target.value }))}
@@ -121,6 +122,8 @@ export default function Contrato() {
             + Adicionar equipamento
           </button>
         </div>
+
+        <ResponsavelLimpline resp={respLimpline} onChange={setRespLimpline} />
 
         <Testemunhas testemunhas={testemunhas} onChange={setTestemunhas} />
 
