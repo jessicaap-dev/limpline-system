@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import { fmtBRL, pluralUnit } from './config'
+import { fmtBRL, pluralUnit, EMPRESA } from './config'
 
 const AZUL = [26, 58, 107]
 const AZUL_M = [46, 95, 171]
@@ -162,11 +162,11 @@ function header(doc, logo) {
   doc.rect(0, 0, W, 26, 'F')
   if (logo) { try { doc.addImage(logo, 'PNG', M, 3, 28, 20) } catch {} }
   doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
-  doc.text('LIMPLINE COMERCIAL', M + 32, 11)
+  doc.text(EMPRESA.nomeCabecalho, M + 32, 11)
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(181, 212, 244)
   doc.text('Dispensers · Papéis · Comodato', M + 32, 17)
   doc.setFontSize(7.5); doc.setTextColor(255, 255, 255)
-  doc.text('(11) 2335-3500 | limplinecomercial.com.br | vendas@limplinecomercial.com.br', W - M, 22, { align: 'right' })
+  doc.text(EMPRESA.telefone + ' | ' + EMPRESA.site + ' | ' + EMPRESA.email, W - M, 22, { align: 'right' })
   doc.setFillColor(...AMARELO)
   doc.rect(0, 26, W, 0.85, 'F')
 }
@@ -176,8 +176,8 @@ function footer(doc) {
   doc.setFillColor(...AMARELO)
   doc.rect(0, ph - 14, W, 0.5, 'F')
   doc.setFontSize(7); doc.setTextColor(...CINZA)
-  doc.text('Av. Prof. Sylla Mattos, 68 - Jd. Santa Cruz - CEP 04182-010 - São Paulo - SP', W / 2, ph - 9, { align: 'center' })
-  doc.text('vendas@limplinecomercial.com.br | (11) 2335-3500', W / 2, ph - 5, { align: 'center' })
+  doc.text(EMPRESA.enderecoRodape, W / 2, ph - 9, { align: 'center' })
+  doc.text(EMPRESA.email + ' | ' + EMPRESA.telefone, W / 2, ph - 5, { align: 'center' })
 }
 
 function contratoPages(doc, data, logo) {
@@ -201,7 +201,7 @@ function contratoPages(doc, data, logo) {
 
   const clausulas = [
     ['CLÁUSULA 1ª - DAS PARTES',
-      'COMODANTE: LIMPLINE COMERCIAL LTDA - Inscrita no CNPJ sob o nº 62.563.688/0001-75, com sede na Av. Prof. Sylla Mattos, 68, Jardim Santa Cruz, São Paulo/SP, CEP 04182-010, doravante denominada COMODANTE.\n\nCOMODATÁRIO: ' + comodatario + (cnpj ? ' - CNPJ nº ' + cnpj : '') + ', doravante denominado COMODATÁRIO.\n\nEquipamentos objeto do presente contrato:\n' + (data.comodato || []).filter(e => e.nome || e.name).map(e => '- ' + (e.nome || e.name) + ' (' + (e.qty || 1) + ' un.)').join(';\n') + '.'],
+      'COMODANTE: ' + EMPRESA.razaoSocial + ' - Inscrita no CNPJ sob o nº ' + EMPRESA.cnpj + ', com sede na ' + EMPRESA.enderecoContrato + ', doravante denominada COMODANTE.\n\nCOMODATÁRIO: ' + comodatario + (cnpj ? ' - CNPJ nº ' + cnpj : '') + ', doravante denominado COMODATÁRIO.\n\nEquipamentos objeto do presente contrato:\n' + (data.comodato || []).filter(e => e.nome || e.name).map(e => '- ' + (e.nome || e.name) + ' (' + (e.qty || 1) + ' un.)').join(';\n') + '.'],
     ['CLÁUSULA 2ª - DO OBJETO',
       'O presente contrato tem por objeto o empréstimo gratuito (comodato) dos equipamentos dispensers de higiene descritos na Cláusula 1ª, de propriedade exclusiva da COMODANTE, para uso exclusivo nas dependências do COMODATÁRIO, pelo prazo de 12 (doze) meses, renovável automaticamente por igual período, salvo manifestação contrária de qualquer das partes com antecedência mínima de 30 (trinta) dias.\n\n§1º Os equipamentos serão instalados gratuitamente pela COMODANTE, que também realizará a manutenção preventiva e corretiva sem custo adicional ao COMODATÁRIO, desde que os danos não sejam decorrentes de mau uso, negligência ou ação de terceiros.\n\n§2º A COMODANTE realizará visita técnica para simulação e planejamento dos espaços antes da instalação dos equipamentos.'],
     ['CLÁUSULA 3ª - DAS OBRIGAÇÕES DO COMODATÁRIO',
@@ -234,37 +234,46 @@ function contratoPages(doc, data, logo) {
     y = justified(doc, limpar(texto), M, W - M * 2, y, 5) + 5
   })
 
-  if (y > 210) { footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36 }
-  y += 8
+  const rl = data.respLimpline || {}
+  const nomeLinhas = doc.splitTextToSize(comodatario, 80)
+  const xR = W - M - 75
+  const tst = data.testemunhas || []
+  // altura do bloco todo (mm): data + folga p/ carimbo + linha + textos + testemunhas
+  const alturaBloco = 5 + 21 + 5 + 4.2 * (nomeLinhas.length + 2) + 14 + 5 + 5.5 + 6
+  if (y + 8 + alturaBloco > 268) { footer(doc); doc.addPage(); header(doc, logo); addWatermark(doc, logo); y = 36 } else { y += 8 }
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(...PRETO)
-  doc.text('São Paulo, ' + (data.data || new Date().toLocaleDateString('pt-BR')), M, y); y += 10
+  doc.text('São Paulo, ' + (data.data || new Date().toLocaleDateString('pt-BR')), M, y)
+  y += 5 + 21
   doc.setDrawColor(...AZUL)
   doc.line(M, y, M + 75, y)
-  doc.line(W - M - 75, y, W - M, y); y += 4
-  doc.setFontSize(8); doc.setTextColor(...CINZA)
-  const xR = W - M - 75
-  doc.text('COMODANTE', M + 20, y)
-  doc.text('COMODATÁRIO', xR + 20, y); y += 3
-  doc.text('LIMPLINE COMERCIAL LTDA', M, y)
-  const nomeLinhas = doc.splitTextToSize(comodatario, 80)
-  doc.text(nomeLinhas, xR, y); y += 1 + 3 * nomeLinhas.length
-  const rl = data.respLimpline || {}
-  const linhaResp = (n, c) => [n && limpar(n), c && 'CPF: ' + limpar(c)].filter(Boolean).join(' - ')
-  const lL = linhaResp(rl.nome, rl.cpf), lC = linhaResp(data.nome, data.cpf)
-  if (lL) doc.text(lL, M, y)
-  if (lC) doc.text(lC, xR, y)
-  y += lL || lC ? 10 : 6
+  doc.line(xR, y, xR + 75, y); y += 5
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(...CINZA)
+  doc.text('COMODANTE', M, y)
+  doc.text('COMODATÁRIO', xR, y); y += 4.2
+  doc.setFont('helvetica', 'normal')
+  const yTxt = y
+  doc.text(EMPRESA.razaoSocial, M, y)
+  doc.text(nomeLinhas, xR, y)
+  const yL = y + 4.2 * 1, yR = y + 4.2 * nomeLinhas.length
+  if (rl.nome) doc.text(limpar(rl.nome), M, yL)
+  if (rl.cpf) doc.text('CPF: ' + limpar(rl.cpf), M, yL + 4.2)
+  if (data.nome) doc.text(limpar(data.nome), xR, yR)
+  if (data.cpf) doc.text('CPF: ' + limpar(data.cpf), xR, yR + 4.2)
+  y = Math.max(yTxt + 4.2 * 3, yR + 4.2 * 2) + 14
   doc.line(M, y, M + 75, y)
-  doc.line(W - M - 75, y, W - M, y); y += 4
-  doc.setFontSize(8); doc.setTextColor(...CINZA)
-  doc.text('TESTEMUNHA 1', M + 20, y)
-  doc.text('TESTEMUNHA 2', xR + 20, y); y += 3
-  const tst = data.testemunhas || []
-  const campo = (rot, v, n) => rot + ': ' + (v ? limpar(v) : '_'.repeat(n))
-  doc.text(campo('Nome', tst[0] && tst[0].nome, 27), M, y)
-  doc.text(campo('Nome', tst[1] && tst[1].nome, 27), xR, y); y += 4
-  doc.text(campo('CPF', tst[0] && tst[0].cpf, 28), M, y)
-  doc.text(campo('CPF', tst[1] && tst[1].cpf, 28), xR, y)
+  doc.line(xR, y, xR + 75, y); y += 5
+  doc.setFont('helvetica', 'bold')
+  doc.text('TESTEMUNHA 1', M, y)
+  doc.text('TESTEMUNHA 2', xR, y); y += 5.5
+  doc.setFont('helvetica', 'normal')
+  const campo = (x, rot, v, larg) => {
+    doc.text(rot + ':', x, y)
+    const xi = x + doc.getTextWidth(rot + ': ')
+    if (v) doc.text(limpar(v), xi, y)
+    else doc.line(xi, y + 0.6, x + larg, y + 0.6)
+  }
+  campo(M, 'Nome', tst[0] && tst[0].nome, 75); campo(xR, 'Nome', tst[1] && tst[1].nome, 75); y += 6
+  campo(M, 'CPF', tst[0] && tst[0].cpf, 75); campo(xR, 'CPF', tst[1] && tst[1].cpf, 75)
   footer(doc)
 
   if (incluirPedidoMinimo) {

@@ -5,6 +5,17 @@ const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || ''
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
+export const EMPRESA = {
+  razaoSocial: 'LIMPLINE SOLUÇÕES EM HIGIENE LTDA',
+  nomeCabecalho: 'LIMPLINE SOLUÇÕES EM HIGIENE',
+  cnpj: '07.836.996/0001-19',
+  enderecoContrato: 'Av. Prof. Sylla Mattos, 68, Anexo 142, Jardim Santa Cruz (Sacomã), São Paulo/SP, CEP 04182-010',
+  enderecoRodape: 'Av. Prof. Sylla Mattos, 68, Anexo 142 - Jd. Santa Cruz (Sacomã) - CEP 04182-010 - São Paulo - SP',
+  telefone: '(11) 2335-3500',
+  email: 'vendas@limplinecomercial.com.br',
+  site: 'limplinecomercial.com.br',
+}
+
 export const USERS = [
 { id: 1, name: 'Jéssica', email: 'jessica@limplinecomercial.com.br', role: 'admin', genero: 'f' },
 { id: 2, name: 'Romilda', email: 'romilda@limplinecomercial.com.br', role: 'vendedora', genero: 'f' },
